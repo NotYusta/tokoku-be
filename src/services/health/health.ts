@@ -1,5 +1,5 @@
 class HealthService {
-  public execute() {
+  public handle() {
     return "Everything is healthy!";
   }
 }

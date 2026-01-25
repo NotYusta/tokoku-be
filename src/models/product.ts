@@ -7,9 +7,9 @@ import type {
 } from "sequelize";
 import { sequelize } from "../database.js";
 
-export class Product extends Model<
-  InferAttributes<Product>,
-  InferCreationAttributes<Product>
+export class ProductModel extends Model<
+  InferAttributes<ProductModel>,
+  InferCreationAttributes<ProductModel>
 > {
   declare id: CreationOptional<number>;
   declare name: string;
@@ -21,7 +21,7 @@ export class Product extends Model<
   declare updatedAt: CreationOptional<Date>;
 }
 
-Product.init(
+ProductModel.init(
   {
     id: {
       type: DataTypes.INTEGER.UNSIGNED,

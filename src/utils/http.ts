@@ -1,18 +1,21 @@
 import type { Request } from "express";
-import { authManager } from "../managers/auth.js";
+
 import type { ClientContext } from "../00_types/contexts/client.js";
+import logger from "../logger.js";
+import type { AuthPayload } from "../00_types/contexts/auth.js";
+import { AuthError } from "./handler.js";
 
-export function ExtractAuth(req: Request) {
-  const header = req.headers.authorization;
-
-  if (!header || !header.startsWith("Bearer ")) {
-    return null;
+/**
+ * Extract authenticated user payload from request context
+ */
+export function ExtractAuth(req: Request): AuthPayload {
+  if (!req.auth) {
+    logger.error("[ExtractAuth] Auth payload missing on request");
+    throw new AuthError("missing auth payload");
   }
 
-  const token = header.slice(7);
-
-  // let authManager throw if invalid
-  return authManager.authenticate(token);
+  logger.debug({ auth: req.auth }, "[ExtractAuth] Auth payload extracted");
+  return req.auth as AuthPayload;
 }
 
 export function ExtractClient(req: Request): ClientContext {

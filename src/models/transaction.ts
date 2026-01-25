@@ -28,7 +28,7 @@ export type TransactionCreationAttributes = Optional<
   "id" | "status" | "gatewayRef"
 >;
 
-export class Transaction
+export class TransactionModel
   extends Model<TransactionAttributes, TransactionCreationAttributes>
   implements TransactionAttributes
 {
@@ -49,7 +49,7 @@ export class Transaction
   public readonly updatedAt!: Date;
 }
 
-Transaction.init(
+TransactionModel.init(
   {
     id: {
       type: DataTypes.BIGINT.UNSIGNED,

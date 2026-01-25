@@ -7,20 +7,21 @@ import type {
 } from "sequelize";
 import { sequelize } from "../database.js";
 
-export class User extends Model<
-  InferAttributes<User>,
-  InferCreationAttributes<User>
+export class UserModel extends Model<
+  InferAttributes<UserModel>,
+  InferCreationAttributes<UserModel>
 > {
   declare id: CreationOptional<number>;
   declare name: string;
   declare email: string;
   declare passwordHash: string;
+  declare isAdmin: boolean; // new field
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 }
 
-User.init(
+UserModel.init(
   {
     id: {
       type: DataTypes.INTEGER.UNSIGNED,
@@ -43,6 +44,13 @@ User.init(
       type: DataTypes.STRING(191),
       allowNull: false,
       field: "password_hash",
+    },
+
+    isAdmin: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      field: "is_admin", // maps to DB column
     },
 
     createdAt: {

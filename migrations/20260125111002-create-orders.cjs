@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('transactions', {
+    await queryInterface.createTable('orders', {
       id: {
         type: Sequelize.BIGINT.UNSIGNED,
         autoIncrement: true,
@@ -16,12 +16,28 @@ module.exports = {
         allowNull: false,
       },
 
-      description: {
-        type: Sequelize.TEXT,
+      // product / service snapshot
+      name: {
+        type: Sequelize.STRING(191),
         allowNull: false,
       },
 
-      amount: {
+      description: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
+
+      unit_price: {
+        type: Sequelize.DECIMAL(15, 2),
+        allowNull: false,
+      },
+
+      quantity: {
+        type: Sequelize.INTEGER.UNSIGNED,
+        allowNull: false,
+      },
+
+      total_price: {
         type: Sequelize.DECIMAL(15, 2),
         allowNull: false,
       },
@@ -33,12 +49,12 @@ module.exports = {
       },
 
       status: {
-        type: Sequelize.ENUM('pending', 'paid', 'failed'),
+        type: Sequelize.ENUM('pending', 'processing', 'completed', 'cancelled'),
         allowNull: false,
         defaultValue: 'pending',
       },
 
-      gateway: {
+      payment_method: {
         type: Sequelize.ENUM(
           'midtrans',
           'xendit',
@@ -49,7 +65,7 @@ module.exports = {
         allowNull: false,
       },
 
-      gateway_ref: {
+      payment_ref: {
         type: Sequelize.STRING(191),
         allowNull: true,
       },
@@ -68,21 +84,14 @@ module.exports = {
       },
     });
 
-    await queryInterface.addIndex('transactions', ['user_id']);
-    await queryInterface.addIndex('transactions', ['status']);
-    await queryInterface.addIndex('transactions', ['gateway']);
-    await queryInterface.addIndex('transactions', ['gateway_ref']);
+    await queryInterface.addIndex('orders', ['user_id']);
+    await queryInterface.addIndex('orders', ['status']);
+    await queryInterface.addIndex('orders', ['payment_method']);
+    await queryInterface.addIndex('orders', ['payment_ref']);
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('transactions');
-
-    // ENUM cleanup (important for Postgres, harmless on MySQL)
-    await queryInterface.sequelize.query(
-      'DROP TYPE IF EXISTS enum_transactions_status;'
-    );
-    await queryInterface.sequelize.query(
-      'DROP TYPE IF EXISTS enum_transactions_gateway;'
-    );
+    // In MariaDB/MySQL, dropping the table automatically removes ENUMs
+    await queryInterface.dropTable('orders');
   },
 };

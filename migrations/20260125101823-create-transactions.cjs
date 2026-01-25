@@ -76,13 +76,5 @@ module.exports = {
 
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('transactions');
-
-    // Required for MySQL / MariaDB ENUM cleanup
-    await queryInterface.sequelize.query(
-      'DROP TYPE IF EXISTS enum_transactions_status;'
-    );
-    await queryInterface.sequelize.query(
-      'DROP TYPE IF EXISTS enum_transactions_gateway;'
-    );
   },
 };

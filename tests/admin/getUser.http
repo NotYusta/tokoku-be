@@ -1,0 +1,4 @@
+# Get Users
+GET http://localhost:3000/api/admin/users/8
+Content-Type: application/json
+Cookie: auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjgsInVhZG1pbiI6dHJ1ZSwidW5hbWUiOiJ4YWJoaXN0YTE5IiwidWFnIjoidnNjb2RlLXJlc3RjbGllbnQiLCJpYXQiOjE3NjkzNDcxMzMsImV4cCI6MTc2OTQzMzUzM30.L1iSzbh09aEzWGJREubWxGVG6OU20e16llYRsYpmz6c

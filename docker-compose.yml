@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  app:
+    image: node:22
+    container_name: tokoku-be
+    working_dir: /usr/src/app
+    volumes:
+      - ./:/usr/src/app
+      - /usr/src/app/node_modules
+    env_file:
+      - .env
+    command: >
+      sh -c "yarn install && npx tsx src/index.ts"
+    ports:
+      - "${APP_PORT:-3000}:${APP_PORT:-3000}"
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: mariadb:11
+    container_name: tokoku-db
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+      MARIADB_DATABASE: ${DB_NAME:-tokoku_db}
+      MARIADB_USER: ${DB_USER:-tokoku_user}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-supersecurepassword}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: unless-stopped
+
+volumes:
+  db_data:
