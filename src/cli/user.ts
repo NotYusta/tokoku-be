@@ -10,7 +10,7 @@ program.name("user-cli").description("User management CLI").version("0.1.0");
 
 // Create user
 program
-  .command("create-user")
+  .command("create")
   .description("Create a new user")
   .requiredOption("-e, --email <email>", "User email")
   .requiredOption("-p, --password <password>", "User password")
@@ -23,7 +23,7 @@ program
 
 // Delete user
 program
-  .command("delete-user")
+  .command("delete")
   .description("Delete a user by email or ID")
   .requiredOption("-i, --identifier <identifier>", "User email or ID")
   .action(async (opts) => {
@@ -35,7 +35,7 @@ program
 
 // List all users
 program
-  .command("list-users")
+  .command("lists")
   .description("List all users")
   .action(async () => {
     const users = await UserModel.findAll();
