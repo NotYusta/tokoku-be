@@ -1,6 +1,9 @@
 # CLIENT ROUTES
 - [ ] VIEW PRODUCTS
 
+## Product Configuration
+add customizable product configurations with webhook queue(s).
+
 ## Orders
 - [ ] CREATE AN ORDER
 - [ ] VIEW ORDERS
