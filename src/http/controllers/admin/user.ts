@@ -1,9 +1,31 @@
+// src/controllers/admin/user.ts
 import type { Request, Response } from "express";
-import adminUserService from "../../../services/admin/user.js";
+import Joi from "joi";
 
+import adminUserService from "../../../services/admin/user.js";
 import { ExtractAuth } from "../../../utils/http.js";
 import handle from "../../../utils/handler.js";
 import { NotFoundError, ValidationError } from "../../../utils/customErrors.js";
+
+// ===== Joi Schemas =====
+const paginationSchema = Joi.object({
+  page: Joi.number().integer().min(1).default(1),
+  page_size: Joi.number().integer().min(1).default(20),
+});
+
+const createUserSchema = Joi.object({
+  name: Joi.string().required(),
+  email: Joi.string().email().required(),
+  password: Joi.string().required(),
+  isAdmin: Joi.boolean().optional(),
+});
+
+const updateUserSchema = Joi.object({
+  name: Joi.string().optional(),
+  email: Joi.string().email().optional(),
+  password: Joi.string().optional(),
+  isAdmin: Joi.boolean().optional(),
+});
 
 const AdminUserController = {
   // GET /admin/users/:id
@@ -24,16 +46,13 @@ const AdminUserController = {
     handle(
       res,
       async () => {
-        // Extract page and page size from query parameters, default to 1 and 20
-        const page = req.query.page ? Number(req.query.page) : 1;
-        const pageSize = req.query.page_size ? Number(req.query.page_size) : 20;
+        const { error, value } = paginationSchema.validate(req.query);
+        if (error) throw new ValidationError(error.details.map((d) => d.message));
 
-        if (isNaN(page) || page < 1)
-          throw new ValidationError(["Invalid page number"]);
-        if (isNaN(pageSize) || pageSize < 1)
-          throw new ValidationError(["Invalid page Size number"]);
-
-        return await adminUserService.getAll({ page, pageSize });
+        return await adminUserService.getAll({
+          page: value.page,
+          pageSize: value.page_size,
+        });
       },
       { parseUnhandled: true },
     ),
@@ -43,13 +62,10 @@ const AdminUserController = {
     handle(
       res,
       async () => {
-        const { name, email, password, isAdmin } = req.body;
-        return await adminUserService.create({
-          name,
-          email,
-          password,
-          isAdmin,
-        });
+        const { error, value } = createUserSchema.validate(req.body, { abortEarly: false });
+        if (error) throw new ValidationError(error.details.map((d) => d.message));
+
+        return await adminUserService.create(value);
       },
       { parseUnhandled: true },
     ),
@@ -62,18 +78,15 @@ const AdminUserController = {
         const id = Number(req.params.id);
         if (isNaN(id)) throw new NotFoundError();
 
-        const { name, email, password, isAdmin } = req.body;
         const { uid } = ExtractAuth(req);
         if (uid === id) {
           throw new ValidationError(["You cannot modify your own user!"]);
         }
-        
-        return await adminUserService.update(id, {
-          name,
-          email,
-          password,
-          isAdmin,
-        });
+
+        const { error, value } = updateUserSchema.validate(req.body, { abortEarly: false });
+        if (error) throw new ValidationError(error.details.map((d) => d.message));
+
+        return await adminUserService.update(id, value);
       },
       { parseUnhandled: true },
     ),

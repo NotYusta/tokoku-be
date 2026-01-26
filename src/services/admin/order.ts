@@ -1,7 +1,6 @@
 // src/services/admin/order.ts
-import logger from "../../logger.js";
+
 import OrderModel from "../../models/order.js";
-import TransactionModel from "../../models/transaction.js";
 
 import { BadRequestError, NotFoundError } from "../../utils/customErrors.js";
 
@@ -35,57 +34,6 @@ class AdminOrderService {
         pages: Math.ceil(count / pageSize),
       },
     };
-  }
-
-  // ===== CREATE =====
-  public async create(data: {
-    userId: number;
-    name: string;
-    description?: string | null;
-    unitPrice: number;
-    quantity: number;
-    currency?: string;
-    payload?: any;
-    gateway: "midtrans" | "xendit" | "paypal" | "stripe" | "manual";
-  }) {
-    if (data.quantity <= 0)
-      throw new BadRequestError("quantity must be greater than 0");
-    if (data.unitPrice <= 0)
-      throw new BadRequestError("unitPrice must be greater than 0");
-
-    const totalPrice = Number(data.unitPrice) * data.quantity;
-    const currency = data.currency ?? "IDR";
-
-    // 1️⃣ Create transaction (invoice)
-    const transaction = await TransactionModel.create({
-      userId: data.userId,
-      description: data.description ?? data.name,
-      amount: totalPrice,
-      currency,
-      gateway: data.gateway,
-      status: "pending",
-    });
-
-    // 2️⃣ Create order linked to transaction
-    const order = await OrderModel.create({
-      userId: data.userId,
-      name: data.name,
-      description: data.description ?? null,
-      unitPrice: data.unitPrice,
-      quantity: data.quantity,
-      totalPrice,
-      currency,
-      status: "pending",
-      transactionId: String(transaction.id),
-      payload: data.payload ?? null,
-    });
-
-    logger.debug(
-      { orderId: order.id, transactionId: transaction.id },
-      "Order + transaction created",
-    );
-
-    return { order, transaction };
   }
 
   // ===== UPDATE =====

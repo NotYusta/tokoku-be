@@ -1,11 +1,34 @@
 // src/controllers/client/product.ts
 import type { Request, Response } from "express";
+import Joi from "joi";
 
 import handle from "../../../utils/handler.js";
 import { NotFoundError, ValidationError } from "../../../utils/customErrors.js";
-import clientProductService from "../../../services/client/product.js"; // for product info
+import clientProductService from "../../../services/client/product.js";
 import { ExtractAuth } from "../../../utils/http.js";
 import createOrderProductService from "../../../services/orders/createOrderProduct.js";
+
+// ===== Joi Schemas =====
+const paginationSchema = Joi.object({
+  page: Joi.number().integer().min(1).default(1),
+  page_size: Joi.number().integer().min(1).default(20),
+  only_in_stock: Joi.boolean().optional(),
+});
+
+const createOrderSchema = Joi.object({
+  quantity: Joi.number().integer().min(1).required(),
+  selectedOptions: Joi.array()
+    .items(
+      Joi.object({
+        optionId: Joi.number().required(),
+        valueIds: Joi.array().items(Joi.number()), // optional for dropdown/multiple
+        customValue: Joi.string().trim(), // optional for text/dropdown
+      })
+        .or("valueIds", "customValue") // at least one required
+        .unknown(false), // forbid other keys like 'value'
+    )
+    .optional(),
+});
 
 const ProductController = {
   // GET /products/:id
@@ -26,19 +49,14 @@ const ProductController = {
     handle(
       res,
       async () => {
-        const page = req.query.page ? Number(req.query.page) : 1;
-        const pageSize = req.query.page_size ? Number(req.query.page_size) : 20;
-        const onlyInStock = req.query.only_in_stock === "true";
-
-        if (isNaN(page) || page < 1)
-          throw new ValidationError(["Invalid page number"]);
-        if (isNaN(pageSize) || pageSize < 1)
-          throw new ValidationError(["Invalid page size number"]);
+        const { error, value } = paginationSchema.validate(req.query);
+        if (error)
+          throw new ValidationError(error.details.map((d) => d.message));
 
         return await clientProductService.getAll({
-          page,
-          pageSize,
-          onlyInStock,
+          page: value.page,
+          pageSize: value.page_size,
+          onlyInStock: value.only_in_stock ?? false,
         });
       },
       { parseUnhandled: true },
@@ -52,17 +70,18 @@ const ProductController = {
         const productId = Number(req.params.id);
         if (isNaN(productId)) throw new ValidationError(["Invalid product id"]);
 
-        const { quantity, selectedOptions } = req.body;
-
-        if (!quantity || quantity < 1)
-          throw new ValidationError(["Quantity must be at least 1"]);
+        const { error, value } = createOrderSchema.validate(req.body, {
+          abortEarly: false,
+        });
+        if (error)
+          throw new ValidationError(error.details.map((d) => d.message));
 
         const { uid } = ExtractAuth(req);
         return await createOrderProductService.handle({
           userId: uid,
           productId,
-          quantity,
-          selectedOptions,
+          quantity: value.quantity,
+          selectedOptions: value.selectedOptions,
         });
       },
       { parseUnhandled: true },

@@ -1,9 +1,29 @@
 // src/controllers/admin/transaction.ts
 import type { Request, Response } from "express";
+import Joi from "joi";
 
 import adminTransactionService from "../../../services/admin/transaction.js";
 import { BadRequestError, NotFoundError, ValidationError } from "../../../utils/customErrors.js";
 import handle from "../../../utils/handler.js";
+
+// ===== Joi Schemas =====
+const paginationSchema = Joi.object({
+  page: Joi.number().integer().min(1).default(1),
+  page_size: Joi.number().integer().min(1).default(20),
+});
+
+const createTransactionSchema = Joi.object({
+  userId: Joi.number().required(),
+  description: Joi.string().required(),
+  amount: Joi.number().required(),
+  currency: Joi.string().required(),
+  gateway: Joi.string().required(),
+  gatewayRef: Joi.string().optional().allow(null, ""),
+});
+
+const updateTransactionStatusSchema = Joi.object({
+  status: Joi.string().valid("pending", "paid", "failed").required(),
+});
 
 const AdminTransactionController = {
   // GET /admin/transactions/:id
@@ -24,15 +44,13 @@ const AdminTransactionController = {
     handle(
       res,
       async () => {
-        const page = req.query.page ? Number(req.query.page) : 1;
-        const pageSize = req.query.page_size ? Number(req.query.page_size) : 20;
+        const { error, value } = paginationSchema.validate(req.query);
+        if (error) throw new ValidationError(error.details.map((d) => d.message));
 
-        if (isNaN(page) || page < 1)
-          throw new ValidationError(["Invalid page number"]);
-        if (isNaN(pageSize) || pageSize < 1)
-          throw new ValidationError(["Invalid page size number"]);
-
-        return await adminTransactionService.getAll({ page, pageSize });
+        return await adminTransactionService.getAll({
+          page: value.page,
+          pageSize: value.page_size,
+        });
       },
       { parseUnhandled: true },
     ),
@@ -42,26 +60,13 @@ const AdminTransactionController = {
     handle(
       res,
       async () => {
-        const { userId, description, amount, currency, gateway, gatewayRef } =
-          req.body;
-
-        const errors: string[] = [];
-        if (!userId) errors.push("userId is required");
-        if (!description) errors.push("description is required");
-        if (!amount || isNaN(Number(amount)))
-          errors.push("amount is required and must be a number");
-        if (!currency) errors.push("currency is required");
-        if (!gateway) errors.push("gateway is required");
-
-        if (errors.length) throw new ValidationError(errors);
+        const { error, value } = createTransactionSchema.validate(req.body, { abortEarly: false });
+        if (error) throw new ValidationError(error.details.map((d) => d.message));
 
         return await adminTransactionService.create({
-          userId: Number(userId),
-          description,
-          amount: Number(amount),
-          currency,
-          gateway,
-          gatewayRef,
+          ...value,
+          userId: Number(value.userId),
+          amount: Number(value.amount),
         });
       },
       { parseUnhandled: true },
@@ -75,14 +80,10 @@ const AdminTransactionController = {
         const id = Number(req.params.id);
         if (isNaN(id)) throw new NotFoundError();
 
-        const { status } = req.body;
-        if (!status) throw new ValidationError(["status is required"]);
+        const { error, value } = updateTransactionStatusSchema.validate(req.body);
+        if (error) throw new ValidationError(error.details.map((d) => d.message));
 
-        const validStatuses = ["pending", "paid", "failed"];
-        if (!validStatuses.includes(status))
-          throw new BadRequestError("Invalid status");
-
-        return await adminTransactionService.updateStatus(id, status);
+        return await adminTransactionService.updateStatus(id, value.status);
       },
       { parseUnhandled: true },
     ),

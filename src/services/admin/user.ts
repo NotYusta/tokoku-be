@@ -79,8 +79,9 @@ class AdminUserService {
       email: data.email,
       passwordHash,
       isAdmin: data.isAdmin ?? false,
-    });
+    })
 
+    
     logger.debug({ id: user.id }, "AdminUserService.create completed");
     return user;
   }

@@ -1,10 +1,30 @@
 // src/controllers/admin/product.ts
 import type { Request, Response } from "express";
-
+import Joi from "joi";
 
 import adminProductService from "../../../services/admin/product.js";
 import handle from "../../../utils/handler.js";
 import { NotFoundError, ValidationError } from "../../../utils/customErrors.js";
+
+// ===== Joi Schemas =====
+const createProductSchema = Joi.object({
+  name: Joi.string().required(),
+  description: Joi.string().allow(null, ""),
+  price: Joi.number().required(),
+  stock: Joi.number().optional(),
+});
+
+const updateProductSchema = Joi.object({
+  name: Joi.string().optional(),
+  description: Joi.string().allow(null, "").optional(),
+  price: Joi.number().optional(),
+  stock: Joi.number().optional(),
+});
+
+const paginationSchema = Joi.object({
+  page: Joi.number().integer().min(1).default(1),
+  page_size: Joi.number().integer().min(1).default(20),
+});
 
 const AdminProductController = {
   // GET /admin/products/:id
@@ -25,15 +45,13 @@ const AdminProductController = {
     handle(
       res,
       async () => {
-        const page = req.query.page ? Number(req.query.page) : 1;
-        const pageSize = req.query.page_size ? Number(req.query.page_size) : 20;
+        const { error, value } = paginationSchema.validate(req.query);
+        if (error) throw new ValidationError(error.details.map((d) => d.message));
 
-        if (isNaN(page) || page < 1)
-          throw new ValidationError(["Invalid page number"]);
-        if (isNaN(pageSize) || pageSize < 1)
-          throw new ValidationError(["Invalid page size number"]);
-
-        return await adminProductService.getAll({ page, pageSize });
+        return await adminProductService.getAll({
+          page: value.page,
+          pageSize: value.page_size,
+        });
       },
       { parseUnhandled: true },
     ),
@@ -43,20 +61,10 @@ const AdminProductController = {
     handle(
       res,
       async () => {
-        const { name, description, price, stock } = req.body;
+        const { error, value } = createProductSchema.validate(req.body);
+        if (error) throw new ValidationError(error.details.map((d) => d.message));
 
-        if (!name) throw new ValidationError(["name is required"]);
-        if (price == null || isNaN(Number(price)))
-          throw new ValidationError(["price is required and must be a number"]);
-        if (stock != null && isNaN(Number(stock)))
-          throw new ValidationError(["stock must be a number if provided"]);
-
-        return await adminProductService.create({
-          name,
-          description,
-          price: Number(price),
-          stock: stock != null ? Number(stock) : undefined,
-        });
+        return await adminProductService.create(value);
       },
       { parseUnhandled: true },
     ),
@@ -69,23 +77,10 @@ const AdminProductController = {
         const id = Number(req.params.id);
         if (isNaN(id)) throw new NotFoundError();
 
-        const { name, description, price, stock } = req.body;
-        const updateData: any = {};
+        const { error, value } = updateProductSchema.validate(req.body);
+        if (error) throw new ValidationError(error.details.map((d) => d.message));
 
-        if (name !== undefined) updateData.name = name;
-        if (description !== undefined) updateData.description = description;
-        if (price !== undefined) {
-          if (isNaN(Number(price)))
-            throw new ValidationError(["price must be a number"]);
-          updateData.price = Number(price);
-        }
-        if (stock !== undefined) {
-          if (isNaN(Number(stock)))
-            throw new ValidationError(["stock must be a number"]);
-          updateData.stock = Number(stock);
-        }
-
-        return await adminProductService.update(id, updateData);
+        return await adminProductService.update(id, value);
       },
       { parseUnhandled: true },
     ),
