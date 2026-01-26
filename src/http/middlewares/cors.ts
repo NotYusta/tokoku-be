@@ -5,7 +5,7 @@ const corsMiddleware = corsMw({
     // Allow requests with no origin (like curl or mobile apps)
     if (!origin) return callback(null, true);
 
-    if (config.app.allowOrigins.includes(origin)) {
+    if (config.app.allowedOrigins.includes(origin)) {
       return callback(null, true);
     } else {
       return callback(new Error("Not allowed by CORS"));
