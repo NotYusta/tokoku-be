@@ -79,8 +79,6 @@ class AdminProductService {
         order: [["id", "ASC"]],
         // IMPORTANT: Use distinct to ensure count is accurate with includes
         distinct: true,
-        // This ensures the limit is applied to the Product table first
-        subQuery: true,
         include: [
           {
             model: ProductImageModel,
