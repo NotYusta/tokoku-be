@@ -1,6 +1,7 @@
-import {  NotFoundError } from "../../../utils/handler.js";
+
 import UserModel from "../../../models/user.js";
 import type { AuthPayload } from "../../../00_types/contexts/auth.js";
+import { NotFoundError } from "../../../utils/customErrors.js";
 
 class GetAccountService {
   public async handle(authPayload: AuthPayload) {

@@ -1,11 +1,9 @@
 import type { Request, Response } from "express";
 import adminUserService from "../../../services/admin/user.js";
-import {
-  handle,
-  NotFoundError,
-  ValidationError,
-} from "../../../utils/handler.js";
+
 import { ExtractAuth } from "../../../utils/http.js";
+import handle from "../../../utils/handler.js";
+import { NotFoundError, ValidationError } from "../../../utils/customErrors.js";
 
 const AdminUserController = {
   // GET /admin/users/:id

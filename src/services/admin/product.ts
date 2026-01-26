@@ -1,27 +1,44 @@
 import type { IPagination } from "../../00_types/requests/requests.js";
 import logger from "../../logger.js";
 import ProductModel from "../../models/product.js";
-import { NotFoundError } from "../../utils/handler.js";
+import ProductImageModel from "../../models/productImage.js";
+import { NotFoundError } from "../../utils/customErrors.js";
 
 class AdminProductService {
   // ===== READ =====
   public async getById(id: number) {
     logger.debug({ id }, "AdminProductService.getById called");
 
-    const product = await ProductModel.findByPk(id);
+    const product = await ProductModel.findByPk(id, {
+      include: [
+        {
+          model: ProductImageModel, // replace with your actual image model
+          as: "images", // make sure this matches your association alias
+          attributes: [
+            "id",
+            "url",
+            "altText",
+            "isPrimary",
+            "createdAt",
+            "updatedAt",
+          ],
+        },
+      ],
+    });
+
     if (!product) {
       logger.debug({ id }, "Product not found in getById");
       throw new NotFoundError();
     }
 
-    logger.debug({ id, name: product.name }, "Product found in getById");
+    logger.debug(
+      { id, name: product.name, images: product.images },
+      "Product found in getById",
+    );
     return product;
   }
 
-  public async getAll({
-    page = 1,
-    pageSize = 20,
-  }: IPagination = {}) {
+  public async getAll({ page = 1, pageSize = 20 }: IPagination = {}) {
     const offset = (page - 1) * pageSize;
 
     logger.debug(
@@ -29,11 +46,13 @@ class AdminProductService {
       "AdminProductService.getAll called",
     );
 
-    const { rows: products, count: total } = await ProductModel.findAndCountAll({
-      limit: pageSize,
-      offset,
-      order: [["id", "ASC"]],
-    });
+    const { rows: products, count: total } = await ProductModel.findAndCountAll(
+      {
+        limit: pageSize,
+        offset,
+        order: [["id", "ASC"]],
+      },
+    );
 
     logger.debug(
       { page, pageSize, returned: products.length, total },

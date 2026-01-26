@@ -3,7 +3,8 @@ import type { Request } from "express";
 import type { ClientContext } from "../00_types/contexts/client.js";
 import logger from "../logger.js";
 import type { AuthPayload } from "../00_types/contexts/auth.js";
-import { AuthError } from "./handler.js";
+import { AuthError } from "./customErrors.js";
+
 
 /**
  * Extract authenticated user payload from request context

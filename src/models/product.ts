@@ -4,8 +4,10 @@ import type {
   InferAttributes,
   InferCreationAttributes,
   CreationOptional,
+  HasManyGetAssociationsMixin,
 } from "sequelize";
 import { sequelize } from "../database.js";
+import ProductImageModel from "./productImage.js"; // your image model
 
 export default class ProductModel extends Model<
   InferAttributes<ProductModel>,
@@ -14,13 +16,18 @@ export default class ProductModel extends Model<
   declare id: CreationOptional<number>;
   declare name: string;
   declare description: string | null;
-  declare price: number;        // stored as DECIMAL
+  declare price: number; // DECIMAL
   declare stock: number;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
+
+  // ===== Association =====
+  declare images?: ProductImageModel[]; // products can have multiple images
+  declare getImages: HasManyGetAssociationsMixin<ProductImageModel>; // Sequelize helper
 }
 
+// ===== Init =====
 ProductModel.init(
   {
     id: {

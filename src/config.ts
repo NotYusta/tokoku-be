@@ -32,6 +32,7 @@ function loadConfig(): IConfig {
       throw new Error("Database configuration incomplete in .env");
     }
 
+    const xenditApiKey = process.env.XENDIT_API_KEY || "";
     return {
       production,
       app: {
@@ -48,6 +49,9 @@ function loadConfig(): IConfig {
         password: dbPassword,
         host: dbHost,
         port: dbPort,
+      },
+      paymentGateway: {
+        xenditApiKey: xenditApiKey,
       },
     };
   } catch (err) {

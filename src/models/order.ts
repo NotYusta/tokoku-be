@@ -1,64 +1,41 @@
 // src/models/orders.ts
-import { DataTypes, Model } from "sequelize";
-import type { Optional } from "sequelize";
+import { Model, DataTypes } from "sequelize";
+import type {
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional,
+} from "sequelize";
 import { sequelize } from "../database.js";
 
-export interface OrderAttributes {
-  id: number;
-  userId: number;
+export default class OrderModel extends Model<
+  InferAttributes<OrderModel>,
+  InferCreationAttributes<OrderModel>
+> {
+  // ===== Fields =====
+  declare id: CreationOptional<number>;
+  declare userId: number;
 
-  // snapshot of product/service at time of order
-  name: string;
-  description?: string;
-  unitPrice: number;
-  quantity: number;
-  totalPrice: number;
+  declare name: string;
+  declare description: string | null;
 
-  currency: string;
+  declare unitPrice: number;
+  declare quantity: number;
+  declare totalPrice: number;
 
-  status: "pending" | "processing" | "completed" | "cancelled";
+  declare currency: string;
 
-  paymentMethod: "midtrans" | "xendit" | "paypal" | "stripe" | "manual";
-  paymentRef?: string;
+  declare status: "pending" | "processing" | "completed" | "cancelled";
 
-  payload?: any; // JSON snapshot of product with options
+  declare paymentMethod: "midtrans" | "xendit" | "paypal" | "stripe" | "manual";
+  declare paymentRef: string | null;
 
-  createdAt?: Date;
-  updatedAt?: Date;
+  declare payload: any | null;
+
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
 }
 
-export type OrderCreationAttributes = Optional<
-  OrderAttributes,
-  "id" | "description" | "paymentRef" | "status" | "payload"
->;
-
-export default class OrderModel
-  extends Model<OrderAttributes, OrderCreationAttributes>
-  implements OrderAttributes
-{
-  public id!: number;
-  public userId!: number;
-
-  public name!: string;
-  public description?: string;
-
-  public unitPrice!: number;
-  public quantity!: number;
-  public totalPrice!: number;
-
-  public currency!: string;
-
-  public status!: "pending" | "processing" | "completed" | "cancelled";
-
-  public paymentMethod!: "midtrans" | "xendit" | "paypal" | "stripe" | "manual";
-  public paymentRef?: string;
-
-  public payload?: any;
-
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
-}
-
+// ===== Init =====
 OrderModel.init(
   {
     id: {
@@ -98,6 +75,7 @@ OrderModel.init(
       type: DataTypes.DECIMAL(15, 2),
       allowNull: false,
       field: "total_price",
+      defaultValue: 0,
     },
 
     currency: {
@@ -113,13 +91,7 @@ OrderModel.init(
     },
 
     paymentMethod: {
-      type: DataTypes.ENUM(
-        "midtrans",
-        "xendit",
-        "paypal",
-        "stripe",
-        "manual"
-      ),
+      type: DataTypes.ENUM("midtrans", "xendit", "paypal", "stripe", "manual"),
       allowNull: false,
     },
 
@@ -127,11 +99,24 @@ OrderModel.init(
       type: DataTypes.STRING(191),
       allowNull: true,
       field: "payment_ref",
+      defaultValue: null,
     },
 
     payload: {
       type: DataTypes.JSON,
       allowNull: true,
+      defaultValue: null,
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: "created_at",
+    },
+
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: "updated_at",
     },
   },
   {
@@ -145,5 +130,5 @@ OrderModel.init(
       { fields: ["payment_method"] },
       { fields: ["payment_ref"] },
     ],
-  }
+  },
 );

@@ -4,11 +4,12 @@ import config from "../../config.js";
 import logger from "../../logger.js";
 
 import clientRoutes from "./client.js";
-import adminRoutes from "./admin.js";
+import adminRoutes from "./admin/admin.js";
 import healthRoutes from "./health.js";
 import authRoutes from "./auth.js";
 import errorMiddleware from "../middlewares/error.js";
 import logMiddleware from "../middlewares/log.js";
+import uploadRoutes from "./upload.js";
 
 export const registerRoutes = (app: Express) => {
   registerMiddlewares(app);
@@ -17,7 +18,7 @@ export const registerRoutes = (app: Express) => {
   clientRoutes(app);
   adminRoutes(app);
   healthRoutes(app);
-
+  uploadRoutes(app);
   app.use(errorMiddleware);
   app.listen(config.app.port, config.app.bind, () => {
     logger.info(

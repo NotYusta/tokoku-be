@@ -1,26 +1,27 @@
 # CLIENT ROUTES
-- [ ] VIEW PRODUCTS
+- [x] VIEW PRODUCTS
 
 ## Product Configuration
 add customizable product configurations with webhook queue(s).
 
 ## Orders
 - [ ] CREATE AN ORDER
-- [ ] VIEW ORDERS
+- [x] VIEW ORDERS
 
-## Transactions
-- [ ] VIEW TRANSACTIONS
+## Transactions 
+- [CANCELLED] VIEW TRANSACTIONS (kinda useless in the client.)
 
 # System Logics
-- [ ] PAYMENT JOB QUEUE (with retries)
-- [ ] UPLOAD IMAGE FOR PRODUCTS.
-
+- [x] PAYMENT JOB QUEUE (with retries)
+- [x] UPLOAD IMAGE FOR PRODUCTS.
+- [ ] ADD XENDIT JOB HANDLER.
 
 # Frontend
 ## admin
 - crud for all orders, products, transactions, and users. (admin)
+
 ## client
 - view products
 - create an order
 - view orders
-- view transactions
+- auth login / sign up

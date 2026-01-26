@@ -1,7 +1,8 @@
 // src/auth/middleware.ts
 import type { Request, Response, NextFunction } from "express";
 import { ExtractAuth, ExtractClient } from "../../utils/http.js";
-import { ForbiddenError } from "../../utils/handler.js";
+import { ForbiddenError } from "../../utils/customErrors.js";
+
 
 export default function adminMiddleware(
   req: Request,

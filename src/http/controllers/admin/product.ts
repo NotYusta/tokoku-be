@@ -1,12 +1,10 @@
 // src/controllers/admin/product.ts
 import type { Request, Response } from "express";
 
-import {
-  handle,
-  NotFoundError,
-  ValidationError,
-} from "../../../utils/handler.js";
+
 import adminProductService from "../../../services/admin/product.js";
+import handle from "../../../utils/handler.js";
+import { NotFoundError, ValidationError } from "../../../utils/customErrors.js";
 
 const AdminProductController = {
   // GET /admin/products/:id

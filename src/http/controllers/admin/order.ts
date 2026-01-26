@@ -1,13 +1,10 @@
 // src/controllers/admin/order.ts
 import type { Request, Response } from "express";
 
-import {
-  handle,
-  NotFoundError,
-  ValidationError,
-  BadRequestError,
-} from "../../../utils/handler.js";
 import adminOrderService from "../../../services/admin/order.js";
+import { BadRequestError, NotFoundError, ValidationError } from "../../../utils/customErrors.js";
+import handle from "../../../utils/handler.js";
+
 
 const AdminOrderController = {
   // GET /admin/orders/:id
@@ -53,6 +50,7 @@ const AdminOrderController = {
           unitPrice,
           quantity,
           currency,
+          payload,
           paymentMethod,
           paymentRef,
         } = req.body;
@@ -77,9 +75,51 @@ const AdminOrderController = {
           unitPrice: Number(unitPrice),
           quantity: Number(quantity),
           currency,
+          payload: payload ?? null, // include payload
           paymentMethod,
           paymentRef,
         });
+      },
+      { parseUnhandled: true }
+    ),
+
+  // PUT /admin/orders/:id
+  updateOrder: (req: Request, res: Response) =>
+    handle(
+      res,
+      async () => {
+        const id = Number(req.params.id);
+        if (isNaN(id)) throw new NotFoundError();
+
+        const {
+          name,
+          description,
+          unitPrice,
+          quantity,
+          currency,
+          payload,
+          paymentMethod,
+          paymentRef,
+        } = req.body;
+
+        const updateData: any = {};
+
+        if (name !== undefined) updateData.name = name;
+        if (description !== undefined) updateData.description = description;
+        if (unitPrice !== undefined) {
+          if (isNaN(Number(unitPrice))) throw new ValidationError(["unitPrice must be a number"]);
+          updateData.unitPrice = Number(unitPrice);
+        }
+        if (quantity !== undefined) {
+          if (isNaN(Number(quantity))) throw new ValidationError(["quantity must be a number"]);
+          updateData.quantity = Number(quantity);
+        }
+        if (currency !== undefined) updateData.currency = currency;
+        if (payload !== undefined) updateData.payload = payload;
+        if (paymentMethod !== undefined) updateData.paymentMethod = paymentMethod;
+        if (paymentRef !== undefined) updateData.paymentRef = paymentRef;
+
+        return await adminOrderService.update(id, updateData);
       },
       { parseUnhandled: true }
     ),

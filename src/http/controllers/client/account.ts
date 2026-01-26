@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
-import {  handle } from "../../../utils/handler.js";
 import { ExtractAuth } from "../../../utils/http.js";
 import getAccountService from "../../../services/clients/account/getAccount.js";
+import handle from "../../../utils/handler.js";
 
 const getAccount = (req: Request, res: Response): Promise<void> =>
   handle(res, async () => {

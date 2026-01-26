@@ -10,8 +10,6 @@ export const sequelize = new Sequelize(
     host: config.db.host,
     port: config.db.port,
     dialect: "mysql", // or "postgres"
-    logging: config.production
-      ? false
-      : (msg) => logger.debug(msg), // use Pino instead of console.log
+    logging: config.production ? false : (msg) => logger.debug(msg), // use Pino instead of console.log
   },
 );

@@ -1,8 +1,9 @@
 import type { Request, Response } from "express";
-import { handle } from "../../../utils/handler.js";
+
 import { validateAndParse } from "../../../utils/validation.js";
-import loginAuthService from "../../../services/auth/loginAuth.js";
+import loginAuthService from "../../../services/auth/login.js";
 import { ExtractClient } from "../../../utils/http.js";
+import handle from "../../../utils/handler.js";
 
 interface LoginBody {
   email: string;

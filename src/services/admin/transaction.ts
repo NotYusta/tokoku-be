@@ -3,7 +3,8 @@ import logger from "../../logger.js";
 import TransactionModel, {
   type TransactionAttributes,
 } from "../../models/transaction.js";
-import { BadRequestError, NotFoundError } from "../../utils/handler.js";
+import { BadRequestError, NotFoundError } from "../../utils/customErrors.js";
+
 import { ValidationError } from "../../utils/validation.js";
 
 class AdminTransactionService {

@@ -1,7 +1,8 @@
-import type { IPagination } from "../../00_types/requests/requests.js";
+// src/services/admin/order.ts
 import logger from "../../logger.js";
-import OrderModel, {type OrderAttributes } from "../../models/order.js";
-import { BadRequestError, NotFoundError } from "../../utils/handler.js";
+import OrderModel from "../../models/order.js";
+
+import { BadRequestError, NotFoundError } from "../../utils/customErrors.js";
 
 class AdminOrderService {
   // ===== READ =====
@@ -9,24 +10,28 @@ class AdminOrderService {
     logger.debug({ id }, "AdminOrderService.getById called");
 
     const order = await OrderModel.findByPk(id);
+
     if (!order) {
       logger.debug({ id }, "Order not found in getById");
       throw new NotFoundError();
     }
 
-    logger.debug({ id, userId: order.userId }, "Order found in getById");
+    logger.debug({ id: order.id }, "Order found in getById");
     return order;
   }
 
-  public async getAll({ page = 1, pageSize = 20 }: IPagination = {}) {
+  // ===== READ ALL =====
+  public async getAll({
+    page = 1,
+    pageSize = 20,
+  }: { page?: number; pageSize?: number } = {}) {
     const offset = (page - 1) * pageSize;
-
     logger.debug({ page, pageSize, offset }, "AdminOrderService.getAll called");
 
     const { rows: orders, count: total } = await OrderModel.findAndCountAll({
       limit: pageSize,
       offset,
-      order: [["id", "DESC"]],
+      order: [["id", "ASC"]],
     });
 
     logger.debug(
@@ -35,7 +40,7 @@ class AdminOrderService {
     );
 
     return {
-      orders,
+      orders: orders,
       pagination: {
         total,
         page,
@@ -46,11 +51,17 @@ class AdminOrderService {
   }
 
   // ===== CREATE =====
-  public async create(
-    data: Omit<OrderAttributes, "id" | "status" | "totalPrice"> & {
-      quantity: number;
-    },
-  ) {
+  public async create(data: {
+    userId: number;
+    name: string;
+    description?: string | null;
+    unitPrice: number;
+    quantity: number;
+    currency: string;
+    payload?: any;
+    paymentMethod: "midtrans" | "xendit" | "paypal" | "stripe" | "manual";
+    paymentRef?: string | null;
+  }) {
     logger.debug({ userId: data.userId }, "AdminOrderService.create called");
 
     if (data.quantity <= 0)
@@ -71,23 +82,32 @@ class AdminOrderService {
   }
 
   // ===== UPDATE =====
-  public async updateStatus(id: number, status: OrderAttributes["status"]) {
-    logger.debug({ id, status }, "AdminOrderService.updateStatus called");
+  public async update(
+    id: number,
+    data: Partial<{
+      name: string;
+      description: string | null;
+      unitPrice: number;
+      quantity: number;
+      currency: string;
+      payload: any;
+      paymentMethod: "midtrans" | "xendit" | "paypal" | "stripe" | "manual";
+      paymentRef?: string | null;
+      status: "pending" | "processing" | "completed" | "cancelled";
+    }>,
+  ) {
+    logger.debug({ id, data }, "AdminOrderService.update called");
 
     const order = await OrderModel.findByPk(id);
     if (!order) {
-      logger.debug({ id }, "Order not found in updateStatus");
+      logger.debug({ id }, "Order not found in update");
       throw new NotFoundError();
     }
 
-    if (!["pending", "processing", "completed", "cancelled"].includes(status)) {
-      throw new BadRequestError("Invalid status");
-    }
+    await order.update(data);
+    logger.debug({ id }, "AdminOrderService.update completed");
 
-    await order.update({ status });
-    logger.debug({ id, status }, "AdminOrderService.updateStatus completed");
-
-    return order;
+    return order.get({ plain: true });
   }
 
   // ===== DELETE =====
@@ -104,6 +124,25 @@ class AdminOrderService {
     logger.debug({ id }, "AdminOrderService.delete completed");
 
     return { success: true };
+  }
+
+  // ===== UPDATE STATUS =====
+  public async updateStatus(
+    id: number,
+    status: "pending" | "processing" | "completed" | "cancelled",
+  ) {
+    logger.debug({ id, status }, "AdminOrderService.updateStatus called");
+
+    const order = await OrderModel.findByPk(id);
+    if (!order) {
+      logger.debug({ id }, "Order not found in updateStatus");
+      throw new NotFoundError();
+    }
+
+    await order.update({ status });
+    logger.debug({ id, status }, "AdminOrderService.updateStatus completed");
+
+    return order;
   }
 }
 

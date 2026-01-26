@@ -15,4 +15,7 @@ export interface IConfig {
     readonly host: string;
     readonly port: number;
   };
+  readonly paymentGateway: {
+    readonly xenditApiKey: string;
+  };
 }
