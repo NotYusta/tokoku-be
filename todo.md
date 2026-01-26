@@ -14,7 +14,7 @@ add customizable product configurations with webhook queue(s).
 # System Logics
 - [x] PAYMENT JOB QUEUE (with retries)
 - [x] UPLOAD IMAGE FOR PRODUCTS.
-- [ ] ADD XENDIT JOB HANDLER.
+- [X] ADD XENDIT JOB HANDLER.
 
 # Frontend
 ## admin

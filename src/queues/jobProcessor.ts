@@ -70,9 +70,7 @@ export async function processJob(jobId: number) {
       );
       await jobImpl.handle(parsedPayload);
 
-      job.status = "completed";
-      job.finishedAt = new Date();
-      await job.save();
+      await job.destroy();
       logger.info({ jobId, type: job.type }, "Job completed successfully");
       return;
     } catch (err) {

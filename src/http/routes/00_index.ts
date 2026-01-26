@@ -10,6 +10,9 @@ import authRoutes from "./auth.js";
 import errorMiddleware from "../middlewares/error.js";
 import logMiddleware from "../middlewares/log.js";
 import uploadRoutes from "./upload.js";
+import webhookRoutes from "./webhook.js";
+import ratelimitMiddleware from "../middlewares/ratelimiter.js";
+
 
 export const registerRoutes = (app: Express) => {
   registerMiddlewares(app);
@@ -19,6 +22,7 @@ export const registerRoutes = (app: Express) => {
   adminRoutes(app);
   healthRoutes(app);
   uploadRoutes(app);
+  webhookRoutes(app);
   app.use(errorMiddleware);
   app.listen(config.app.port, config.app.bind, () => {
     logger.info(
@@ -31,4 +35,5 @@ const registerMiddlewares = (app: Express) => {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(logMiddleware);
+  app.use(ratelimitMiddleware);
 };

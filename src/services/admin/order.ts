@@ -1,22 +1,15 @@
 // src/services/admin/order.ts
 import logger from "../../logger.js";
 import OrderModel from "../../models/order.js";
+import TransactionModel from "../../models/transaction.js";
 
 import { BadRequestError, NotFoundError } from "../../utils/customErrors.js";
 
 class AdminOrderService {
   // ===== READ =====
   public async getById(id: number) {
-    logger.debug({ id }, "AdminOrderService.getById called");
-
     const order = await OrderModel.findByPk(id);
-
-    if (!order) {
-      logger.debug({ id }, "Order not found in getById");
-      throw new NotFoundError();
-    }
-
-    logger.debug({ id: order.id }, "Order found in getById");
+    if (!order) throw new NotFoundError();
     return order;
   }
 
@@ -26,26 +19,20 @@ class AdminOrderService {
     pageSize = 20,
   }: { page?: number; pageSize?: number } = {}) {
     const offset = (page - 1) * pageSize;
-    logger.debug({ page, pageSize, offset }, "AdminOrderService.getAll called");
 
-    const { rows: orders, count: total } = await OrderModel.findAndCountAll({
+    const { rows, count } = await OrderModel.findAndCountAll({
       limit: pageSize,
       offset,
       order: [["id", "ASC"]],
     });
 
-    logger.debug(
-      { page, pageSize, returned: orders.length, total },
-      "AdminOrderService.getAll completed",
-    );
-
     return {
-      orders: orders,
+      orders: rows,
       pagination: {
-        total,
+        total: count,
         page,
         pageSize,
-        pages: Math.ceil(total / pageSize),
+        pages: Math.ceil(count / pageSize),
       },
     };
   }
@@ -57,28 +44,48 @@ class AdminOrderService {
     description?: string | null;
     unitPrice: number;
     quantity: number;
-    currency: string;
+    currency?: string;
     payload?: any;
-    paymentMethod: "midtrans" | "xendit" | "paypal" | "stripe" | "manual";
-    paymentRef?: string | null;
+    gateway: "midtrans" | "xendit" | "paypal" | "stripe" | "manual";
   }) {
-    logger.debug({ userId: data.userId }, "AdminOrderService.create called");
-
     if (data.quantity <= 0)
       throw new BadRequestError("quantity must be greater than 0");
     if (data.unitPrice <= 0)
       throw new BadRequestError("unitPrice must be greater than 0");
 
     const totalPrice = Number(data.unitPrice) * data.quantity;
+    const currency = data.currency ?? "IDR";
 
-    const order = await OrderModel.create({
-      ...data,
-      totalPrice,
+    // 1️⃣ Create transaction (invoice)
+    const transaction = await TransactionModel.create({
+      userId: data.userId,
+      description: data.description ?? data.name,
+      amount: totalPrice,
+      currency,
+      gateway: data.gateway,
       status: "pending",
     });
 
-    logger.debug({ id: order.id }, "AdminOrderService.create completed");
-    return order;
+    // 2️⃣ Create order linked to transaction
+    const order = await OrderModel.create({
+      userId: data.userId,
+      name: data.name,
+      description: data.description ?? null,
+      unitPrice: data.unitPrice,
+      quantity: data.quantity,
+      totalPrice,
+      currency,
+      status: "pending",
+      transactionId: String(transaction.id),
+      payload: data.payload ?? null,
+    });
+
+    logger.debug(
+      { orderId: order.id, transactionId: transaction.id },
+      "Order + transaction created",
+    );
+
+    return { order, transaction };
   }
 
   // ===== UPDATE =====
@@ -91,38 +98,35 @@ class AdminOrderService {
       quantity: number;
       currency: string;
       payload: any;
-      paymentMethod: "midtrans" | "xendit" | "paypal" | "stripe" | "manual";
-      paymentRef?: string | null;
       status: "pending" | "processing" | "completed" | "cancelled";
     }>,
   ) {
-    logger.debug({ id, data }, "AdminOrderService.update called");
-
     const order = await OrderModel.findByPk(id);
-    if (!order) {
-      logger.debug({ id }, "Order not found in update");
-      throw new NotFoundError();
+    if (!order) throw new NotFoundError();
+
+    const updateData: any = { ...data };
+
+    // recompute totalPrice if needed
+    if (data.unitPrice !== undefined || data.quantity !== undefined) {
+      const unitPrice = data.unitPrice ?? order.unitPrice;
+      const quantity = data.quantity ?? order.quantity;
+
+      if (unitPrice <= 0 || quantity <= 0)
+        throw new BadRequestError("invalid price or quantity");
+
+      updateData.totalPrice = Number(unitPrice) * quantity;
     }
 
-    await order.update(data);
-    logger.debug({ id }, "AdminOrderService.update completed");
-
-    return order.get({ plain: true });
+    await order.update(updateData);
+    return order;
   }
 
   // ===== DELETE =====
   public async delete(id: number) {
-    logger.debug({ id }, "AdminOrderService.delete called");
-
     const order = await OrderModel.findByPk(id);
-    if (!order) {
-      logger.debug({ id }, "Order not found in delete");
-      throw new NotFoundError();
-    }
+    if (!order) throw new NotFoundError();
 
     await order.destroy();
-    logger.debug({ id }, "AdminOrderService.delete completed");
-
     return { success: true };
   }
 
@@ -131,20 +135,12 @@ class AdminOrderService {
     id: number,
     status: "pending" | "processing" | "completed" | "cancelled",
   ) {
-    logger.debug({ id, status }, "AdminOrderService.updateStatus called");
-
     const order = await OrderModel.findByPk(id);
-    if (!order) {
-      logger.debug({ id }, "Order not found in updateStatus");
-      throw new NotFoundError();
-    }
+    if (!order) throw new NotFoundError();
 
     await order.update({ status });
-    logger.debug({ id, status }, "AdminOrderService.updateStatus completed");
-
     return order;
   }
 }
 
-const adminOrderService = new AdminOrderService();
-export default adminOrderService;
+export default new AdminOrderService();

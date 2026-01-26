@@ -2,6 +2,8 @@ import type { IPagination } from "../../00_types/requests/requests.js";
 import logger from "../../logger.js";
 import ProductModel from "../../models/product.js";
 import ProductImageModel from "../../models/productImage.js";
+import ProductOptionModel from "../../models/productOption.js";
+import ProductOptionValueModel from "../../models/productOptionValue.js";
 import { NotFoundError } from "../../utils/customErrors.js";
 
 class ClientProductService {
@@ -16,6 +18,18 @@ class ClientProductService {
           as: "images",
           attributes: ["id", "url", "altText", "isPrimary"],
         },
+        {
+          model: ProductOptionModel,
+          as: "options",
+          attributes: ["id", "name", "type", "label"],
+          include: [
+            {
+              model: ProductOptionValueModel,
+              as: "values",
+              attributes: ["id", "name", "value", "price"],
+            },
+          ],
+        },
       ],
     });
 
@@ -25,7 +39,12 @@ class ClientProductService {
     }
 
     logger.debug(
-      { id, name: product.name, images: product.images },
+      {
+        id,
+        name: product.name,
+        images: product.images,
+        options: product.options,
+      },
       "Product found in getById",
     );
     return product;

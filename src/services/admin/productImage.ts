@@ -6,6 +6,7 @@ import { NotFoundError } from "../../utils/customErrors.js";
 import path from "path";
 import fs from "fs";
 import { UploadConstants } from "../../constants/upload.js";
+import config from "../../config.js";
 
 // Ensure upload directory exists
 if (!fs.existsSync(UploadConstants.UPLOAD_PRODUCT_DIR)) {
@@ -70,13 +71,16 @@ class AdminProductImageService {
       const filePath = path.join(UploadConstants.UPLOAD_PRODUCT_DIR, filename);
       fs.writeFileSync(filePath, data.file.buffer);
 
-      const url = `${UploadConstants.UPLOAD_PRODUCT_URL_PREFIX}${filename}`;
+      const imgUrl = path.resolve(
+        UploadConstants.UPLOAD_PRODUCT_URL_PREFIX,
+        filename,
+      );
 
       // Create new image
       const image = await ProductImageModel.create(
         {
           productId: data.productId,
-          url,
+          url: imgUrl,
           altText: data.altText ?? null,
           isPrimary: data.isPrimary ?? false,
         },

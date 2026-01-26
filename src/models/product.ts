@@ -7,7 +7,8 @@ import type {
   HasManyGetAssociationsMixin,
 } from "sequelize";
 import { sequelize } from "../database.js";
-import ProductImageModel from "./productImage.js"; // your image model
+import ProductImageModel from "./productImage.js";
+import ProductOptionModel from "./productOption.js"; // import options
 
 export default class ProductModel extends Model<
   InferAttributes<ProductModel>,
@@ -22,9 +23,12 @@ export default class ProductModel extends Model<
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 
-  // ===== Association =====
-  declare images?: ProductImageModel[]; // products can have multiple images
-  declare getImages: HasManyGetAssociationsMixin<ProductImageModel>; // Sequelize helper
+  // ===== Associations =====
+  declare images?: ProductImageModel[];
+  declare getImages: HasManyGetAssociationsMixin<ProductImageModel>;
+
+  declare options?: ProductOptionModel[];
+  declare getOptions: HasManyGetAssociationsMixin<ProductOptionModel>;
 }
 
 // ===== Init =====
@@ -49,6 +53,10 @@ ProductModel.init(
     price: {
       type: DataTypes.DECIMAL(12, 2),
       allowNull: false,
+      get() {
+        const rawValue = this.getDataValue("price");
+        return parseFloat(rawValue as unknown as string) || 0;
+      },
     },
 
     stock: {
@@ -74,5 +82,5 @@ ProductModel.init(
     tableName: "products",
     underscored: true,
     timestamps: true,
-  }
+  },
 );

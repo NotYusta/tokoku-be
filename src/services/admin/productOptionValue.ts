@@ -4,7 +4,6 @@ import logger from "../../logger.js";
 import ProductOptionValueModel from "../../models/productOptionValue.js";
 import { NotFoundError } from "../../utils/customErrors.js";
 
-
 class AdminProductOptionValueService {
   // ===== READ =====
   public async getById(id: number) {
@@ -54,13 +53,15 @@ class AdminProductOptionValueService {
   public async create(data: {
     optionId: number;
     name: string;
+    value: string; // added
     price?: number;
   }) {
-    logger.debug({ name: data.name }, "AdminProductOptionValueService.create called");
+    logger.debug({ name: data.name, value: data.value }, "AdminProductOptionValueService.create called");
 
     const value = await ProductOptionValueModel.create({
       optionId: data.optionId,
       name: data.name,
+      value: data.value, // added
       price: data.price ?? 0,
     });
 
@@ -73,6 +74,7 @@ class AdminProductOptionValueService {
     id: number,
     data: Partial<{
       name: string;
+      value: string; // added
       price: number;
     }>
   ) {

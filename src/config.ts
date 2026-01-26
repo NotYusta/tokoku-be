@@ -11,7 +11,7 @@ const config: IConfig = loadConfig();
 function loadConfig(): IConfig {
   try {
     const production = process.env.NODE_ENV === "production";
-
+    const appUrl = process.env.APP_URL || "http://localhost:3000";
     const port = Number(process.env.APP_PORT) || 3000;
     const bind = process.env.APP_BIND || "0.0.0.0";
 
@@ -22,6 +22,7 @@ function loadConfig(): IConfig {
       throw new Error("JWT_SECRET or ENCRYPTION_KEY not defined in .env");
     }
 
+    // ===== Database =====
     const dbName = process.env.DB_NAME;
     const dbUser = process.env.DB_USER;
     const dbPassword = process.env.DB_PASSWORD;
@@ -32,10 +33,28 @@ function loadConfig(): IConfig {
       throw new Error("Database configuration incomplete in .env");
     }
 
+    // ===== Payment Gateway =====
     const xenditApiKey = process.env.XENDIT_API_KEY || "";
+    const xenditWebhookToken = process.env.XENDIT_WEBHOOK_TOKEN || "";
+
+    // ===== Notifications =====
+    const discordWebhookUrls = process.env.DISCORD_WEBHOOK_URLS
+      ? process.env.DISCORD_WEBHOOK_URLS.split(",")
+          .map((u) => u.trim())
+          .filter(Boolean)
+      : [];
+
+    const customUrls = process.env.CUSTOM_WEBHOOK_URLS
+      ? process.env.CUSTOM_WEBHOOK_URLS.split(",")
+          .map((u) => u.trim())
+          .filter(Boolean)
+      : [];
+
     return {
       production,
+
       app: {
+        url: appUrl,
         port,
         bind,
         keys: {
@@ -43,6 +62,7 @@ function loadConfig(): IConfig {
           encryptionKey,
         },
       },
+
       db: {
         name: dbName,
         user: dbUser,
@@ -50,8 +70,19 @@ function loadConfig(): IConfig {
         host: dbHost,
         port: dbPort,
       },
+
       paymentGateway: {
-        xenditApiKey: xenditApiKey,
+        xendit: {
+          apiKey: xenditApiKey,
+          webhookToken: xenditWebhookToken,
+        },
+      },
+
+      notifications: {
+        webhooks: {
+          custom: customUrls,
+          discord: discordWebhookUrls,
+        },
       },
     };
   } catch (err) {

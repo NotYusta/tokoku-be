@@ -2,6 +2,8 @@ import type { IPagination } from "../../00_types/requests/requests.js";
 import logger from "../../logger.js";
 import ProductModel from "../../models/product.js";
 import ProductImageModel from "../../models/productImage.js";
+import ProductOptionModel from "../../models/productOption.js";
+import ProductOptionValueModel from "../../models/productOptionValue.js";
 import { NotFoundError } from "../../utils/customErrors.js";
 
 class AdminProductService {
@@ -12,8 +14,8 @@ class AdminProductService {
     const product = await ProductModel.findByPk(id, {
       include: [
         {
-          model: ProductImageModel, // replace with your actual image model
-          as: "images", // make sure this matches your association alias
+          model: ProductImageModel,
+          as: "images",
           attributes: [
             "id",
             "url",
@@ -21,6 +23,25 @@ class AdminProductService {
             "isPrimary",
             "createdAt",
             "updatedAt",
+          ],
+        },
+        {
+          model: ProductOptionModel,
+          as: "options",
+          attributes: ["id", "name", "type", "label"],
+          include: [
+            {
+              model: ProductOptionValueModel,
+              as: "values",
+              attributes: [
+                "id",
+                "name",
+                "value",
+                "price",
+                "createdAt",
+                "updatedAt",
+              ],
+            },
           ],
         },
       ],
@@ -32,7 +53,12 @@ class AdminProductService {
     }
 
     logger.debug(
-      { id, name: product.name, images: product.images },
+      {
+        id,
+        name: product.name,
+        images: product.images,
+        options: product.options,
+      },
       "Product found in getById",
     );
     return product;

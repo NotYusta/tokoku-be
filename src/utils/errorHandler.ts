@@ -35,6 +35,9 @@ export function mapErrorToResponse(
   } else if (err instanceof ForbiddenError) {
     statusCode = 403;
     responseBody = { error: opts?.message ?? "forbidden" };
+  } else if (err instanceof SyntaxError) {
+    statusCode = 400;
+    responseBody = { error: err.message };
   } else {
     if (opts?.parseUnhandled) {
       if (err instanceof SequelizeValidationError) {

@@ -1,0 +1,13 @@
+# Create Transaction (Admin)
+POST http://localhost:3000/api/admin/transactions
+Content-Type: application/json
+Cookie: auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjgsInVhZG1pbiI6dHJ1ZSwidW5hbWUiOiJ4YWJoaXN0YTE5IiwidWFnIjoidnNjb2RlLXJlc3RjbGllbnQiLCJpYXQiOjE3NjkzNDcxMzMsImV4cCI6MTc2OTQzMzUzM30.L1iSzbh09aEzWGJREubWxGVG6OU20e16llYRsYpmz6c
+
+{
+  "userId": 1,
+  "description": "VPS Nusantara 2GB - January 2026",
+  "amount": 150000,
+  "currency": "IDR",
+  "gateway": "xendit",
+  "gatewayRef": "inv-1234567890"
+}

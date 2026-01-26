@@ -26,8 +26,8 @@ export default class OrderModel extends Model<
 
   declare status: "pending" | "processing" | "completed" | "cancelled";
 
-  declare paymentMethod: "midtrans" | "xendit" | "paypal" | "stripe" | "manual";
-  declare paymentRef: string | null;
+  // unified transaction reference
+  declare transactionId: string | null;
 
   declare payload: any | null;
 
@@ -90,15 +90,10 @@ OrderModel.init(
       defaultValue: "pending",
     },
 
-    paymentMethod: {
-      type: DataTypes.ENUM("midtrans", "xendit", "paypal", "stripe", "manual"),
-      allowNull: false,
-    },
-
-    paymentRef: {
+    transactionId: {
       type: DataTypes.STRING(191),
       allowNull: true,
-      field: "payment_ref",
+      field: "transaction_id",
       defaultValue: null,
     },
 
@@ -107,6 +102,7 @@ OrderModel.init(
       allowNull: true,
       defaultValue: null,
     },
+
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
@@ -127,8 +123,7 @@ OrderModel.init(
     indexes: [
       { fields: ["user_id"] },
       { fields: ["status"] },
-      { fields: ["payment_method"] },
-      { fields: ["payment_ref"] },
+      { fields: ["transaction_id"] },
     ],
   },
 );

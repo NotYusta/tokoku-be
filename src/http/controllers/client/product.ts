@@ -3,7 +3,9 @@ import type { Request, Response } from "express";
 
 import handle from "../../../utils/handler.js";
 import { NotFoundError, ValidationError } from "../../../utils/customErrors.js";
-import clientProductService from "../../../services/client/productImage.js";
+import clientProductService from "../../../services/client/product.js"; // for product info
+import { ExtractAuth } from "../../../utils/http.js";
+import createOrderProductService from "../../../services/orders/createOrderProduct.js";
 
 const ProductController = {
   // GET /products/:id
@@ -37,6 +39,30 @@ const ProductController = {
           page,
           pageSize,
           onlyInStock,
+        });
+      },
+      { parseUnhandled: true },
+    ),
+
+  // POST /products/:id/order
+  createOrder: (req: Request, res: Response) =>
+    handle(
+      res,
+      async () => {
+        const productId = Number(req.params.id);
+        if (isNaN(productId)) throw new ValidationError(["Invalid product id"]);
+
+        const { quantity, selectedOptions } = req.body;
+
+        if (!quantity || quantity < 1)
+          throw new ValidationError(["Quantity must be at least 1"]);
+
+        const { uid } = ExtractAuth(req);
+        return await createOrderProductService.handle({
+          userId: uid,
+          productId,
+          quantity,
+          selectedOptions,
         });
       },
       { parseUnhandled: true },

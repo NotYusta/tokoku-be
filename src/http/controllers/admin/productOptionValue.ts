@@ -1,11 +1,9 @@
 // src/controllers/admin/productOptionValue.ts
 import type { Request, Response } from "express";
 
-
 import adminProductOptionValueService from "../../../services/admin/productOptionValue.js";
 import handle from "../../../utils/handler.js";
 import { NotFoundError, ValidationError } from "../../../utils/customErrors.js";
-
 
 const AdminProductOptionValueController = {
   // GET /admin/product-option-values/:id
@@ -42,17 +40,19 @@ const AdminProductOptionValueController = {
     handle(
       res,
       async () => {
-        const { optionId, name, price } = req.body;
+        const { optionId, name, value, price } = req.body;
 
         if (!optionId || isNaN(Number(optionId)))
           throw new ValidationError(["optionId is required and must be a number"]);
         if (!name) throw new ValidationError(["name is required"]);
+        if (!value) throw new ValidationError(["value is required"]); // added
         if (price !== undefined && isNaN(Number(price)))
           throw new ValidationError(["price must be a number"]);
 
         return await adminProductOptionValueService.create({
           optionId: Number(optionId),
           name,
+          value, // added
           price: price !== undefined ? Number(price) : undefined,
         });
       },
@@ -67,10 +67,11 @@ const AdminProductOptionValueController = {
         const id = Number(req.params.id);
         if (isNaN(id)) throw new NotFoundError();
 
-        const { name, price } = req.body;
+        const { name, value, price } = req.body;
         const updateData: any = {};
 
         if (name !== undefined) updateData.name = name;
+        if (value !== undefined) updateData.value = value; // added
         if (price !== undefined) {
           if (isNaN(Number(price))) throw new ValidationError(["price must be a number"]);
           updateData.price = Number(price);

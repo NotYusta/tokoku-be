@@ -1,6 +1,7 @@
 export interface IConfig {
   readonly production: boolean;
   readonly app: {
+    readonly url: string;
     readonly port: number;
     readonly bind: string;
     readonly keys: {
@@ -16,6 +17,15 @@ export interface IConfig {
     readonly port: number;
   };
   readonly paymentGateway: {
-    readonly xenditApiKey: string;
+    readonly xendit: {
+      readonly apiKey: string;
+      readonly webhookToken: string;
+    };
+  };
+  readonly notifications: {
+    readonly webhooks: {
+      readonly discord: string[];
+      readonly custom: string[];
+    };
   };
 }

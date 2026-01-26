@@ -1,52 +1,34 @@
 // src/models/transaction.ts
-import { DataTypes, Model } from "sequelize";
-import type { Optional } from "sequelize";
+import {
+  Model,
+  DataTypes,
+  type CreationOptional,
+  type InferCreationAttributes,
+  type InferAttributes,
+} from "sequelize";
 import { sequelize } from "../database.js";
 
-export interface TransactionAttributes {
-  id: number;
-  userId: number;
+export default class TransactionModel extends Model<
+  InferAttributes<TransactionModel>,
+  InferCreationAttributes<TransactionModel>
+> {
+  declare id: CreationOptional<number>;
+  declare userId: number;
 
   // snapshot of product / service at time of purchase
-  description: string;
+  declare description: string;
 
-  amount: number;
-  currency: string;
+  declare amount: number;
+  declare currency: string;
 
-  status: "pending" | "paid" | "failed";
+  declare status: "pending" | "paid" | "failed";
 
   // payment gateway info
-  gateway: "midtrans" | "xendit" | "paypal" | "stripe" | "manual";
-  gatewayRef?: string;
+  declare gateway: "midtrans" | "xendit" | "paypal" | "stripe" | "manual";
+  declare gatewayRef: string | null;
 
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-export type TransactionCreationAttributes = Optional<
-  TransactionAttributes,
-  "id" | "status" | "gatewayRef"
->;
-
-export default class TransactionModel
-  extends Model<TransactionAttributes, TransactionCreationAttributes>
-  implements TransactionAttributes
-{
-  public id!: number;
-  public userId!: number;
-
-  public description!: string;
-
-  public amount!: number;
-  public currency!: string;
-
-  public status!: "pending" | "paid" | "failed";
-
-  public gateway!: "midtrans" | "xendit" | "paypal" | "stripe" | "manual";
-  public gatewayRef?: string;
-
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
 }
 
 TransactionModel.init(
@@ -71,6 +53,10 @@ TransactionModel.init(
     amount: {
       type: DataTypes.DECIMAL(15, 2),
       allowNull: false,
+      get() {
+        const rawValue = this.getDataValue("amount");
+        return parseFloat(rawValue as unknown as string) || 0;
+      },
     },
 
     currency: {
@@ -86,13 +72,7 @@ TransactionModel.init(
     },
 
     gateway: {
-      type: DataTypes.ENUM(
-        "midtrans",
-        "xendit",
-        "paypal",
-        "stripe",
-        "manual"
-      ),
+      type: DataTypes.ENUM("midtrans", "xendit", "paypal", "stripe", "manual"),
       allowNull: false,
     },
 
@@ -100,6 +80,19 @@ TransactionModel.init(
       type: DataTypes.STRING(191),
       allowNull: true,
       field: "gateway_ref",
+      defaultValue: null,
+    },
+
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: "created_at",
+    },
+
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      field: "updated_at",
     },
   },
   {
@@ -111,7 +104,11 @@ TransactionModel.init(
       { fields: ["user_id"] },
       { fields: ["status"] },
       { fields: ["gateway"] },
-      { fields: ["gateway_ref"] },
+      {
+        unique: true,
+        fields: ["gateway", "gateway_ref"],
+        name: "uniq_gateway_ref",
+      },
     ],
-  }
+  },
 );

@@ -10,9 +10,15 @@ interface IPagination {
 
 class ClientOrderService {
   // ===== READ ALL ORDERS FOR A USER =====
-  public async getAll(userId: number, { page = 1, pageSize = 20 }: IPagination = {}) {
+  public async getAll(
+    userId: number,
+    { page = 1, pageSize = 20 }: IPagination = {},
+  ) {
     const offset = (page - 1) * pageSize;
-    logger.debug({ userId, page, pageSize, offset }, "ClientOrderService.getAll called");
+    logger.debug(
+      { userId, page, pageSize, offset },
+      "ClientOrderService.getAll called",
+    );
 
     const { rows: orders, count: total } = await OrderModel.findAndCountAll({
       where: { userId },
@@ -27,21 +33,7 @@ class ClientOrderService {
     );
 
     return {
-      orders: orders.map(order => ({
-        id: order.id,
-        name: order.name,
-        description: order.description,
-        unitPrice: order.unitPrice,
-        quantity: order.quantity,
-        currency: order.currency,
-        payload: order.payload,
-        paymentMethod: order.paymentMethod,
-        paymentRef: order.paymentRef,
-        totalPrice: order.totalPrice,
-        status: order.status,
-        createdAt: order.createdAt,
-        updatedAt: order.updatedAt,
-      })),
+      orders: orders,
       pagination: {
         total,
         page,
@@ -64,21 +56,7 @@ class ClientOrderService {
 
     logger.debug({ id: order.id }, "ClientOrderService.getById completed");
 
-    return {
-      id: order.id,
-      name: order.name,
-      description: order.description,
-      unitPrice: order.unitPrice,
-      quantity: order.quantity,
-      currency: order.currency,
-      payload: order.payload,
-      paymentMethod: order.paymentMethod,
-      paymentRef: order.paymentRef,
-      totalPrice: order.totalPrice,
-      status: order.status,
-      createdAt: order.createdAt,
-      updatedAt: order.updatedAt,
-    };
+    return order;
   }
 }
 

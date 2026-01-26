@@ -1,0 +1,16 @@
+# Xendit Invoice Webhook (PAID)
+POST http://localhost:3000/api/webhook/xendit
+Content-Type: application/json
+X-Callback-Token: oyeaa
+
+{
+  "id": "69775cfec0171992570ce3dd",
+  "external_id": "order-1001",
+  "status": "PAID",
+  "amount": 150000,
+  "currency": "IDR",
+  "payer_email": "customer@example.com",
+  "description": "VPS Nusantara 2GB",
+  "created": "2026-01-26T10:00:00.000Z",
+  "updated": "2026-01-26T10:05:00.000Z"
+}
