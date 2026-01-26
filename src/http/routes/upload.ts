@@ -2,7 +2,7 @@ import express, { type Express } from "express";
 import { UploadConstants } from "../../constants/upload.js";
 const uploadRoutes = (app: Express) => {
   app.use(
-    `/api${UploadConstants.UPLOAD_URL_PREFIX}`,
+    UploadConstants.UPLOAD_URL_PREFIX,
     express.static(UploadConstants.UPLOAD_DIR),
   );
 };

@@ -1,6 +1,7 @@
 export interface IConfig {
   readonly production: boolean;
   readonly app: {
+    readonly allowOrigins: string[];
     readonly url: string;
     readonly port: number;
     readonly bind: string;

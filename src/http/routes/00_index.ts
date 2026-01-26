@@ -12,7 +12,7 @@ import logMiddleware from "../middlewares/log.js";
 import uploadRoutes from "./upload.js";
 import webhookRoutes from "./webhook.js";
 import ratelimitMiddleware from "../middlewares/ratelimiter.js";
-
+import frontendRoutes from "./frontend.js";
 
 export const registerRoutes = (app: Express) => {
   registerMiddlewares(app);
@@ -23,7 +23,10 @@ export const registerRoutes = (app: Express) => {
   healthRoutes(app);
   uploadRoutes(app);
   webhookRoutes(app);
+
+  frontendRoutes(app);
   app.use(errorMiddleware);
+
   app.listen(config.app.port, config.app.bind, () => {
     logger.info(
       `Server is running on http://${config.app.bind}:${config.app.port}`,

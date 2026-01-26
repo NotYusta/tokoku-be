@@ -49,11 +49,15 @@ function loadConfig(): IConfig {
           .map((u) => u.trim())
           .filter(Boolean)
       : [];
+const allowOrigins = process.env.APP_ALLOW_ORIGINS
+  ? process.env.APP_ALLOW_ORIGINS.split(",").map(u => u.trim()).filter(Boolean)
+  : [];
 
     return {
       production,
 
       app: {
+        allowOrigins,
         url: appUrl,
         port,
         bind,
