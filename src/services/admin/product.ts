@@ -63,7 +63,7 @@ class AdminProductService {
     );
     return product;
   }
-
+  
   public async getAll({ page = 1, pageSize = 20 }: IPagination = {}) {
     const offset = (page - 1) * pageSize;
 
@@ -77,6 +77,43 @@ class AdminProductService {
         limit: pageSize,
         offset,
         order: [["id", "ASC"]],
+        // IMPORTANT: Use distinct to ensure count is accurate with includes
+        distinct: true,
+        // This ensures the limit is applied to the Product table first
+        subQuery: true,
+        include: [
+          {
+            model: ProductImageModel,
+            as: "images",
+            attributes: [
+              "id",
+              "url",
+              "altText",
+              "isPrimary",
+              "createdAt",
+              "updatedAt",
+            ],
+          },
+          {
+            model: ProductOptionModel,
+            as: "options",
+            attributes: ["id", "name", "type", "label"],
+            include: [
+              {
+                model: ProductOptionValueModel,
+                as: "values",
+                attributes: [
+                  "id",
+                  "name",
+                  "value",
+                  "price",
+                  "createdAt",
+                  "updatedAt",
+                ],
+              },
+            ],
+          },
+        ],
       },
     );
 

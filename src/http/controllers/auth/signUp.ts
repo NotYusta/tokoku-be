@@ -30,7 +30,6 @@ const signupSchema = Joi.object({
     "string.empty": "password is required",
     "string.min": "password must be at least 8 characters",
   }),
-  remember: Joi.boolean().optional(),
 });
 
 const signupController = (req: Request, res: Response): Promise<void> =>
@@ -46,7 +45,7 @@ const signupController = (req: Request, res: Response): Promise<void> =>
     const { first_name, last_name, email, password, remember } = value;
 
     const clientContext = ExtractClient(req);
-    const result = await signupAuthService.handle({
+    await signupAuthService.handle({
       clientContext,
       first_name,
       last_name,
@@ -55,13 +54,6 @@ const signupController = (req: Request, res: Response): Promise<void> =>
       remember,
     });
 
-    // Assign cookie to user
-    res.cookie("auth_token", result.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: result.maxAge,
-    });
 
     return;
   });

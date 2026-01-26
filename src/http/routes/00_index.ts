@@ -13,6 +13,7 @@ import uploadRoutes from "./upload.js";
 import webhookRoutes from "./webhook.js";
 import ratelimitMiddleware from "../middlewares/ratelimiter.js";
 import frontendRoutes from "./frontend.js";
+import productRoutes from "./product.js";
 
 export const registerRoutes = (app: Express) => {
   registerMiddlewares(app);
@@ -23,7 +24,7 @@ export const registerRoutes = (app: Express) => {
   healthRoutes(app);
   uploadRoutes(app);
   webhookRoutes(app);
-
+  productRoutes(app);
   frontendRoutes(app);
   app.use(errorMiddleware);
 

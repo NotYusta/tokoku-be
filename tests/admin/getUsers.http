@@ -1,4 +1,4 @@
 # Get Users
 GET http://localhost:3000/api/admin/users?page_size=1
 Content-Type: application/json
-Cookie: auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjgsInVhZG1pbiI6dHJ1ZSwidW5hbWUiOiJ4YWJoaXN0YTE5IiwidWFnIjoidnNjb2RlLXJlc3RjbGllbnQiLCJpYXQiOjE3NjkzNDcxMzMsImV4cCI6MTc2OTQzMzUzM30.L1iSzbh09aEzWGJREubWxGVG6OU20e16llYRsYpmz6c
+Cookie: auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjEsInVhZG1pbiI6dHJ1ZSwidW5hbWUiOiJ4YWJoaXN0YTE5IiwidWFnIjoidnNjb2RlLXJlc3RjbGllbnQiLCJpYXQiOjE3Njk0NTQ2MjMsImV4cCI6MTc2OTU0MTAyM30.p5N-Ac8fmTGJhQrIkRGu3IKZibObPHtecfA3fA41gAM; Max-Age=86400; Path=/; Expires=Tue, 27 Jan 2026 19:10:23 GMT; HttpOnly; SameSite=Strict

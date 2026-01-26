@@ -7,7 +7,7 @@ class GetAccountService {
   public async handle(authPayload: AuthPayload) {
     // Find user by ID from the auth payload
     const user = await UserModel.findByPk(authPayload.uid, {
-      attributes: ["id", "name", "email"], // only public fields
+      attributes: ["isAdmin", "name", "email"], // only public fields
     });
 
     if (!user) {

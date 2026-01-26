@@ -56,7 +56,7 @@ class AdminProductOptionService {
   public async create(data: {
     productId: number;
     name: string;
-    type?: "single" | "multiple" | "dropdown" | "text";
+    type?:  "multiple" | "dropdown" | "text";
     label?: string | null;
   }) {
     logger.debug({ name: data.name }, "AdminProductOptionService.create called");
@@ -64,7 +64,7 @@ class AdminProductOptionService {
     const option = await ProductOptionModel.create({
       productId: data.productId,
       name: data.name,
-      type: data.type ?? "single",
+      type: data.type ?? "multiple",
       label: data.label ?? null,
     });
 
@@ -77,7 +77,7 @@ class AdminProductOptionService {
     id: number,
     data: Partial<{
       name: string;
-      type: "single" | "multiple" | "dropdown" | "text";
+      type:  "multiple" | "dropdown" | "text";
       label: string | null;
     }>
   ) {
