@@ -2,10 +2,10 @@
 - [x] VIEW PRODUCTS
 
 ## Product Configuration
-add customizable product configurations with webhook queue(s).
+- [x] add customizable product configurations with webhook queue(s).
 
 ## Orders
-- [ ] CREATE AN ORDER
+- [X] CREATE AN ORDER
 - [x] VIEW ORDERS
 
 ## Transactions 
