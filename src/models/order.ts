@@ -21,16 +21,18 @@ export interface OrderAttributes {
   paymentMethod: "midtrans" | "xendit" | "paypal" | "stripe" | "manual";
   paymentRef?: string;
 
+  payload?: any; // JSON snapshot of product with options
+
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 export type OrderCreationAttributes = Optional<
   OrderAttributes,
-  "id" | "description" | "paymentRef" | "status"
+  "id" | "description" | "paymentRef" | "status" | "payload"
 >;
 
-export class OrderModel
+export default class OrderModel
   extends Model<OrderAttributes, OrderCreationAttributes>
   implements OrderAttributes
 {
@@ -50,6 +52,8 @@ export class OrderModel
 
   public paymentMethod!: "midtrans" | "xendit" | "paypal" | "stripe" | "manual";
   public paymentRef?: string;
+
+  public payload?: any;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -123,6 +127,11 @@ OrderModel.init(
       type: DataTypes.STRING(191),
       allowNull: true,
       field: "payment_ref",
+    },
+
+    payload: {
+      type: DataTypes.JSON,
+      allowNull: true,
     },
   },
   {

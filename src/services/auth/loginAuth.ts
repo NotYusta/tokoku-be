@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import { AuthError } from "../../utils/handler.js";
-import { UserModel } from "../../models/user.js";
+import UserModel from "../../models/user.js";
 import authManager from "../../managers/auth.js";
 import type { ClientContext } from "../../00_types/contexts/client.js";
 

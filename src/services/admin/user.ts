@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { UserModel } from "../../models/user.js";
+import UserModel from "../../models/user.js";
 import { NotFoundError } from "../../utils/handler.js";
 import { AuthConstants } from "../../constants/auth.js";
 import logger from "../../logger.js"; // your Pino logger instance

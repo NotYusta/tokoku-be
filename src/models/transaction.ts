@@ -28,7 +28,7 @@ export type TransactionCreationAttributes = Optional<
   "id" | "status" | "gatewayRef"
 >;
 
-export class TransactionModel
+export default class TransactionModel
   extends Model<TransactionAttributes, TransactionCreationAttributes>
   implements TransactionAttributes
 {

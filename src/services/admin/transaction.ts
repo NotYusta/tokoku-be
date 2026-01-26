@@ -1,13 +1,10 @@
 import type { IPagination } from "../../00_types/requests/requests.js";
 import logger from "../../logger.js";
-import {
-  TransactionModel,
+import TransactionModel, {
   type TransactionAttributes,
 } from "../../models/transaction.js";
 import { BadRequestError, NotFoundError } from "../../utils/handler.js";
 import { ValidationError } from "../../utils/validation.js";
-
-
 
 class AdminTransactionService {
   // ===== READ =====

@@ -2,7 +2,7 @@
 import { Command } from "commander";
 import { createUser } from "../scripts/createUser.js";
 import { deleteUser } from "../scripts/deleteUser.js";
-import { UserModel } from "../models/user.js";
+import UserModel from "../models/user.js";
 
 const program = new Command();
 

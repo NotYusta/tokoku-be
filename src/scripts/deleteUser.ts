@@ -1,5 +1,5 @@
 // src/scripts/deleteUser.ts
-import { UserModel } from "../models/user.js"; // adjust path if needed
+import UserModel from "../models/user.js"; // adjust path if needed
 
 /**
  * Delete a user by email or ID

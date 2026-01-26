@@ -1,6 +1,6 @@
 import type { IPagination } from "../../00_types/requests/requests.js";
 import logger from "../../logger.js";
-import { ProductModel } from "../../models/product.js";
+import ProductModel from "../../models/product.js";
 import { NotFoundError } from "../../utils/handler.js";
 
 class AdminProductService {

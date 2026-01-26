@@ -1,5 +1,5 @@
 import {  NotFoundError } from "../../../utils/handler.js";
-import { UserModel } from "../../../models/user.js";
+import UserModel from "../../../models/user.js";
 import type { AuthPayload } from "../../../00_types/contexts/auth.js";
 
 class GetAccountService {

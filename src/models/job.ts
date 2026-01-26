@@ -1,4 +1,4 @@
-// src/models/product.ts
+// src/models/jobQueue.ts
 import { Model, DataTypes } from "sequelize";
 import type {
   InferAttributes,
@@ -7,21 +7,23 @@ import type {
 } from "sequelize";
 import { sequelize } from "../database.js";
 
-export default class ProductModel extends Model<
-  InferAttributes<ProductModel>,
-  InferCreationAttributes<ProductModel>
+export default class JobQueueModel extends Model<
+  InferAttributes<JobQueueModel>,
+  InferCreationAttributes<JobQueueModel>
 > {
   declare id: CreationOptional<number>;
-  declare name: string;
-  declare description: string | null;
-  declare price: number;        // stored as DECIMAL
-  declare stock: number;
+  declare type: string;
+  declare payload: object; // JSON payload
+  declare status: string; // "pending" | "processing" | "completed" | "failed"
+  declare attempts: number;
+  declare runAt: CreationOptional<Date>;
+  declare finishedAt: CreationOptional<Date | null>;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 }
 
-ProductModel.init(
+JobQueueModel.init(
   {
     id: {
       type: DataTypes.INTEGER.UNSIGNED,
@@ -29,25 +31,38 @@ ProductModel.init(
       primaryKey: true,
     },
 
-    name: {
-      type: DataTypes.STRING(150),
+    type: {
+      type: DataTypes.STRING(100),
       allowNull: false,
     },
 
-    description: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-    },
-
-    price: {
-      type: DataTypes.DECIMAL(12, 2),
+    payload: {
+      type: DataTypes.JSON,
       allowNull: false,
     },
 
-    stock: {
+    status: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      defaultValue: "pending",
+    },
+
+    attempts: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
       defaultValue: 0,
+    },
+
+    runAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: "run_at",
+    },
+
+    finishedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: "finished_at",
     },
 
     createdAt: {
@@ -64,8 +79,8 @@ ProductModel.init(
   },
   {
     sequelize,
-    tableName: "products",
+    tableName: "job_queues",
     underscored: true,
     timestamps: true,
-  }
+  },
 );

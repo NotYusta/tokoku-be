@@ -1,6 +1,6 @@
 import type { IPagination } from "../../00_types/requests/requests.js";
 import logger from "../../logger.js";
-import { OrderModel, type OrderAttributes } from "../../models/order.js";
+import OrderModel, {type OrderAttributes } from "../../models/order.js";
 import { BadRequestError, NotFoundError } from "../../utils/handler.js";
 
 class AdminOrderService {

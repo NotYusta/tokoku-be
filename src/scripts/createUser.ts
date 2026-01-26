@@ -1,6 +1,6 @@
 // src/scripts/createUser.ts
 import { AuthConstants } from "../constants/auth.js";
-import { UserModel } from "../models/user.js"; // adjust path if needed
+import UserModel from "../models/user.js"; // adjust path if needed
 import bcrypt from "bcrypt";
 
 /**

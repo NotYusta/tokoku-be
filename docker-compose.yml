@@ -7,11 +7,11 @@ services:
     working_dir: /usr/src/app
     volumes:
       - ./:/usr/src/app
-      - /usr/src/app/node_modules
+      - node_modules:/usr/src/app/node_modules
+      - ./.github/entrypoint.sh:/entrypoint.sh
     env_file:
       - .env
-    command: >
-      sh -c "yarn install && npx tsx src/index.ts"
+    entrypoint: ["bash", "/entrypoint.sh"]
     ports:
       - "${APP_PORT:-3000}:${APP_PORT:-3000}"
     depends_on:
@@ -34,3 +34,4 @@ services:
 
 volumes:
   db_data:
+  node_modules:

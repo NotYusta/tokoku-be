@@ -7,7 +7,7 @@ import type {
 } from "sequelize";
 import { sequelize } from "../database.js";
 
-export class UserModel extends Model<
+export default class UserModel extends Model<
   InferAttributes<UserModel>,
   InferCreationAttributes<UserModel>
 > {
