@@ -15,27 +15,33 @@ class AdminProductOptionValueService {
       throw new NotFoundError();
     }
 
-    logger.debug({ id, name: value.name }, "ProductOptionValue found in getById");
+    logger.debug(
+      { id, name: value.name },
+      "ProductOptionValue found in getById",
+    );
     return value;
   }
 
-  public async getAll({
-    page = 1,
-    pageSize = 20,
-  }: IPagination = {}) {
+  public async getAll(
+    { page = 1, pageSize = 20 }: IPagination = {},
+  ) {
     const offset = (page - 1) * pageSize;
 
-    logger.debug({ page, pageSize, offset }, "AdminProductOptionValueService.getAll called");
+    logger.debug(
+      { page, pageSize, offset },
+      "AdminProductOptionValueService.getAll called",
+    );
 
-    const { rows: values, count: total } = await ProductOptionValueModel.findAndCountAll({
-      limit: pageSize,
-      offset,
-      order: [["id", "ASC"]],
-    });
+    const { rows: values, count: total } =
+      await ProductOptionValueModel.findAndCountAll({
+        limit: pageSize,
+        offset,
+        order: [["id", "ASC"]],
+      });
 
     logger.debug(
       { page, pageSize, returned: values.length, total },
-      "AdminProductOptionValueService.getAll completed"
+      "AdminProductOptionValueService.getAll completed",
     );
 
     return {
@@ -56,7 +62,10 @@ class AdminProductOptionValueService {
     value: string; // added
     price?: number;
   }) {
-    logger.debug({ name: data.name, value: data.value }, "AdminProductOptionValueService.create called");
+    logger.debug(
+      { name: data.name, value: data.value },
+      "AdminProductOptionValueService.create called",
+    );
 
     const value = await ProductOptionValueModel.create({
       optionId: data.optionId,
@@ -65,7 +74,10 @@ class AdminProductOptionValueService {
       price: data.price ?? 0,
     });
 
-    logger.debug({ id: value.id }, "AdminProductOptionValueService.create completed");
+    logger.debug(
+      { id: value.id },
+      "AdminProductOptionValueService.create completed",
+    );
     return value;
   }
 
@@ -76,7 +88,7 @@ class AdminProductOptionValueService {
       name: string;
       value: string; // added
       price: number;
-    }>
+    }>,
   ) {
     logger.debug({ id, data }, "AdminProductOptionValueService.update called");
 

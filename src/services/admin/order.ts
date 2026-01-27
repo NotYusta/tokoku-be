@@ -22,7 +22,7 @@ class AdminOrderService {
     const { rows, count } = await OrderModel.findAndCountAll({
       limit: pageSize,
       offset,
-      order: [["id", "ASC"]],
+      order: [["id", "DESC"]],
     });
 
     return {

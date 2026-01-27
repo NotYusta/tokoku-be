@@ -1,0 +1,3 @@
+GET http://localhost:3000/api/admin/product-options
+Cookie: auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjEsInVhZG1pbiI6dHJ1ZSwidW5hbWUiOiJZdWRoYSBBYmhpc3RhIiwidWFnIjoidnNjb2RlLXJlc3RjbGllbnQiLCJpYXQiOjE3Njk0ODk3OTksImV4cCI6MTc2OTU3NjE5OX0.tkk9JeDtCZqBgINwZ94QQGG33WTay4fuk7UBqTSYR0w; Max-Age=86400; Path=/; Expires=Wed, 28 Jan 2026 04:56:39 GMT; HttpOnly; SameSite=Strict
+Content-Type: application/json

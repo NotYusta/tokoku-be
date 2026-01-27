@@ -3,7 +3,7 @@ import type { Request, Response } from "express";
 import Joi from "joi";
 
 import adminTransactionService from "../../../services/admin/transaction.js";
-import { BadRequestError, NotFoundError, ValidationError } from "../../../utils/customErrors.js";
+import { NotFoundError, ValidationError } from "../../../utils/customErrors.js";
 import handle from "../../../utils/handler.js";
 
 // ===== Joi Schemas =====

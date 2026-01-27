@@ -68,7 +68,7 @@ class AdminProductImageService {
 
       // Save file
       const filename = `${Date.now()}-${data.file.originalname}`;
-      const filePath = path.join(UploadConstants.UPLOAD_PRODUCT_DIR, filename);
+      const filePath = path.join(UploadConstants.UPLOAD_PRODUCT_DIR, "/", filename);
       fs.writeFileSync(filePath, data.file.buffer);
 
       const imgUrl = path.resolve(
@@ -133,7 +133,7 @@ class AdminProductImageService {
 
         // Update URL
         (data as any).url = path.resolve(
-          UploadConstants.UPLOAD_PRODUCT_URL_PREFIX,
+          UploadConstants.UPLOAD_PRODUCT_URL_PREFIX, "/",
           filename,
         );
       }
