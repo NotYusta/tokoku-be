@@ -1,3 +1,4 @@
+import { Op } from "sequelize";
 import type { IPagination } from "../../00_types/requests/requests.js";
 import logger from "../../logger.js";
 import TransactionModel from "../../models/transaction.js";
@@ -20,7 +21,7 @@ class AdminTransactionService {
     return transaction;
   }
 
-  public async getAll({ page = 1, pageSize = 20 }: IPagination = {}) {
+  public async getAll({ page = 1, pageSize = 20, search }: IPagination = {}) {
     const offset = (page - 1) * pageSize;
 
     logger.debug(
@@ -28,11 +29,20 @@ class AdminTransactionService {
       "AdminTransactionService.getAll called",
     );
 
+    const where: any = {};
+    if (search) {
+      where[Op.or] = [
+        { description: { [Op.like]: `%${search}%` } },
+        { gatewayRef: { [Op.like]: `%${search}%` } },
+      ];
+    }
+
     const { rows: transactions, count: total } =
       await TransactionModel.findAndCountAll({
         limit: pageSize,
         offset,
         order: [["id", "DESC"]],
+        where,
       });
 
     logger.debug(

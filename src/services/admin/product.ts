@@ -4,6 +4,7 @@ import ProductModel from "../../models/product.js";
 import ProductImageModel from "../../models/productImage.js";
 import ProductOptionModel from "../../models/productOption.js";
 import ProductOptionValueModel from "../../models/productOptionValue.js";
+import { Op } from "sequelize";
 import { NotFoundError } from "../../utils/customErrors.js";
 
 class AdminProductService {
@@ -63,17 +64,23 @@ class AdminProductService {
     );
     return product;
   }
-  
-  public async getAll({ page = 1, pageSize = 20 }: IPagination = {}) {
+
+  public async getAll({ page = 1, pageSize = 20, search }: IPagination = {}) {
     const offset = (page - 1) * pageSize;
 
     logger.debug(
-      { page, pageSize, offset },
+      { page, pageSize, offset, search },
       "AdminProductService.getAll called",
     );
 
+    const where: any = {};
+    if (search) {
+      where.name = { [Op.like]: `%${search}%` };
+    }
+
     const { rows: products, count: total } = await ProductModel.findAndCountAll(
       {
+        where,
         limit: pageSize,
         offset,
         order: [["id", "ASC"]],

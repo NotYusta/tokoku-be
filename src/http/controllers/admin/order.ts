@@ -16,20 +16,22 @@ import createOrderProductService from "../../../services/orders/createOrderProdu
 const paginationSchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   page_size: Joi.number().integer().min(1).default(20),
+  search: Joi.string().optional().allow(""),
 });
 
-const createOrderSchema = Joi.object({
+const createOrderSchema = Joi.object({  
   userId: Joi.number().required(),
+  productId: Joi.number().required(),
   quantity: Joi.number().integer().min(1).required(),
   selectedOptions: Joi.array()
     .items(
       Joi.object({
         optionId: Joi.number().required(),
-        valueIds: Joi.array().items(Joi.number()),   // optional for dropdown/multiple
-        customValue: Joi.string().trim(),           // optional for text/dropdown
+        valueIds: Joi.array().items(Joi.number()), // optional for dropdown/multiple
+        customValue: Joi.string().trim(), // optional for text/dropdown
       })
-        .or("valueIds", "customValue")               // at least one required
-        .unknown(false),                             // forbid other keys like 'value'
+        .or("valueIds", "customValue") // at least one required
+        .unknown(false), // forbid other keys like 'value'
     )
     .optional(),
   payerEmail: Joi.string().email().optional(),
@@ -60,19 +62,18 @@ const AdminOrderController = {
         return await adminOrderService.getAll({
           page: value.page,
           pageSize: value.page_size,
+          search: value.search,
         });
       },
       { parseUnhandled: true },
     ),
 
   // POST /admin/orders
-  // POST /products/:id/order
   createOrder: (req: Request, res: Response) =>
     handle(
       res,
       async () => {
-        const productId = Number(req.params.id);
-        if (isNaN(productId)) throw new ValidationError(["Invalid product id"]);
+
 
         const { error, value } = createOrderSchema.validate(req.body, {
           abortEarly: false,
@@ -80,10 +81,11 @@ const AdminOrderController = {
         if (error)
           throw new ValidationError(error.details.map((d) => d.message));
 
+        
         // Call CreateOrderProductService
         const result = await createOrderProductService.handle({
           userId: value.userId,
-          productId,
+          productId: value.productId,
           quantity: value.quantity,
           selectedOptions: value.selectedOptions ?? [],
           payerEmail: value.payerEmail,

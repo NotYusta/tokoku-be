@@ -2,6 +2,9 @@
 import type { IPagination } from "../../00_types/requests/requests.js";
 import logger from "../../logger.js";
 import ProductOptionValueModel from "../../models/productOptionValue.js";
+import ProductOptionModel from "../../models/productOption.js";
+import ProductModel from "../../models/product.js";
+import { Op } from "sequelize";
 import { NotFoundError } from "../../utils/customErrors.js";
 
 class AdminProductOptionValueService {
@@ -22,21 +25,42 @@ class AdminProductOptionValueService {
     return value;
   }
 
-  public async getAll(
-    { page = 1, pageSize = 20 }: IPagination = {},
-  ) {
+  public async getAll({ page = 1, pageSize = 20, search }: IPagination = {}) {
     const offset = (page - 1) * pageSize;
 
     logger.debug(
-      { page, pageSize, offset },
+      { page, pageSize, offset, search },
       "AdminProductOptionValueService.getAll called",
     );
 
+    const where: any = {};
+    if (search) {
+      where[Op.or] = [
+        { name: { [Op.like]: `%${search}%` } },
+        { value: { [Op.like]: `%${search}%` } },
+      ];
+    }
+
     const { rows: values, count: total } =
       await ProductOptionValueModel.findAndCountAll({
+        where,
         limit: pageSize,
         offset,
         order: [["id", "ASC"]],
+        include: [
+          {
+            model: ProductOptionModel,
+            as: "option",
+            attributes: ["id", "name", "productId"],
+            include: [
+              {
+                model: ProductModel,
+                as: "product",
+                attributes: ["id", "name"],
+              },
+            ],
+          },
+        ],
       });
 
     logger.debug(

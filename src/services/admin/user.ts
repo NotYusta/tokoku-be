@@ -4,6 +4,7 @@ import { AuthConstants } from "../../constants/auth.js";
 import logger from "../../logger.js"; // your Pino logger instance
 import type { IPagination } from "../../00_types/requests/requests.js";
 import { NotFoundError } from "../../utils/customErrors.js";
+import { Op } from "sequelize";
 
 class AdminUserService {
   // ===== READ =====
@@ -26,7 +27,7 @@ class AdminUserService {
     return user;
   }
 
-  public async getAll({ page = 1, pageSize = 20 }: IPagination = {}) {
+  public async getAll({ page = 1, pageSize = 20, search }: IPagination = {}) {
     const offset = (page - 1) * pageSize;
 
     logger.debug(
@@ -34,11 +35,20 @@ class AdminUserService {
       "AdminUserService.getAll called with pagination",
     );
 
+    const where: any = {};
+    if (search) {
+      where[Op.or] = [
+        { name: { [Op.like]: `%${search}%` } },
+        { email: { [Op.like]: `%${search}%` } },
+      ];
+    }
+
     const { rows: users, count: total } = await UserModel.findAndCountAll({
       attributes: ["id", "name", "email", "isAdmin", "createdAt", "updatedAt"],
       limit: pageSize,
       offset,
       order: [["id", "ASC"]],
+      where,
     });
 
     logger.debug(
@@ -79,9 +89,8 @@ class AdminUserService {
       email: data.email,
       passwordHash,
       isAdmin: data.isAdmin ?? false,
-    })
+    });
 
-    
     logger.debug({ id: user.id }, "AdminUserService.create completed");
     return user;
   }

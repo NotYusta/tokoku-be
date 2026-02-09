@@ -1,7 +1,8 @@
 // src/services/admin/order.ts
 
+import type { IPagination } from "../../00_types/requests/requests.js";
 import OrderModel from "../../models/order.js";
-
+import { Op } from "sequelize";
 import { BadRequestError, NotFoundError } from "../../utils/customErrors.js";
 
 class AdminOrderService {
@@ -13,15 +14,22 @@ class AdminOrderService {
   }
 
   // ===== READ ALL =====
-  public async getAll({
-    page = 1,
-    pageSize = 20,
-  }: { page?: number; pageSize?: number } = {}) {
+  public async getAll({ page = 1, pageSize = 20, search }: IPagination = {}) {
     const offset = (page - 1) * pageSize;
+
+    const where: any = {};
+    if (search) {
+      where[Op.or] = [
+        { id: { [Op.like]: `%${search}%` } },
+        { name: { [Op.like]: `%${search}%` } },
+        { description: { [Op.like]: `%${search}%` } },
+      ];
+    }
 
     const { rows, count } = await OrderModel.findAndCountAll({
       limit: pageSize,
       offset,
+      where,
       order: [["id", "DESC"]],
     });
 

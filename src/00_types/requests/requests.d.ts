@@ -1,1 +1,1 @@
-export type IPagination = { page?: number; pageSize?: number };
+export type IPagination = { page?: number; pageSize?: number; search?: string };

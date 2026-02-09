@@ -11,6 +11,7 @@ import { NotFoundError, ValidationError } from "../../../utils/customErrors.js";
 const paginationSchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   page_size: Joi.number().integer().min(1).default(20),
+  search: Joi.string().optional().allow(""),
 });
 
 const createUserSchema = Joi.object({
@@ -47,11 +48,13 @@ const AdminUserController = {
       res,
       async () => {
         const { error, value } = paginationSchema.validate(req.query);
-        if (error) throw new ValidationError(error.details.map((d) => d.message));
+        if (error)
+          throw new ValidationError(error.details.map((d) => d.message));
 
         return await adminUserService.getAll({
           page: value.page,
           pageSize: value.page_size,
+          search: value.search,
         });
       },
       { parseUnhandled: true },
@@ -62,8 +65,11 @@ const AdminUserController = {
     handle(
       res,
       async () => {
-        const { error, value } = createUserSchema.validate(req.body, { abortEarly: false });
-        if (error) throw new ValidationError(error.details.map((d) => d.message));
+        const { error, value } = createUserSchema.validate(req.body, {
+          abortEarly: false,
+        });
+        if (error)
+          throw new ValidationError(error.details.map((d) => d.message));
 
         return await adminUserService.create(value);
       },
@@ -83,8 +89,11 @@ const AdminUserController = {
           throw new ValidationError(["You cannot modify your own user!"]);
         }
 
-        const { error, value } = updateUserSchema.validate(req.body, { abortEarly: false });
-        if (error) throw new ValidationError(error.details.map((d) => d.message));
+        const { error, value } = updateUserSchema.validate(req.body, {
+          abortEarly: false,
+        });
+        if (error)
+          throw new ValidationError(error.details.map((d) => d.message));
 
         return await adminUserService.update(id, value);
       },

@@ -11,10 +11,11 @@ const paginationSchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   page_size: Joi.number().integer().min(1).default(20),
   product_id: Joi.number().integer().optional().min(1),
+  search: Joi.string().optional().allow(""),
 });
 
 const createValueSchema = Joi.object({
-  option_id: Joi.number().required(),
+  optionId: Joi.number().required(),
   name: Joi.string().required(),
   value: Joi.string().required(),
   price: Joi.number().optional(),
@@ -49,12 +50,11 @@ const AdminProductOptionValueController = {
         if (error)
           throw new ValidationError(error.details.map((d) => d.message));
 
-        return await adminProductOptionValueService.getAll(
-          {
-            page: value.page,
-            pageSize: value.page_size,
-          },
-        );
+        return await adminProductOptionValueService.getAll({
+          page: value.page,
+          pageSize: value.page_size,
+          search: value.search,
+        });
       },
       { parseUnhandled: true },
     ),

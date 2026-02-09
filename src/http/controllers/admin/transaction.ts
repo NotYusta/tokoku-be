@@ -10,6 +10,7 @@ import handle from "../../../utils/handler.js";
 const paginationSchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   page_size: Joi.number().integer().min(1).default(20),
+  search: Joi.string().optional().allow(""),
 });
 
 const createTransactionSchema = Joi.object({
@@ -50,6 +51,7 @@ const AdminTransactionController = {
         return await adminTransactionService.getAll({
           page: value.page,
           pageSize: value.page_size,
+          search: value.search,
         });
       },
       { parseUnhandled: true },

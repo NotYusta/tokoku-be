@@ -2,6 +2,8 @@
 import type { IPagination } from "../../00_types/requests/requests.js";
 import logger from "../../logger.js";
 import ProductOptionModel from "../../models/productOption.js";
+import ProductModel from "../../models/product.js";
+import { Op } from "sequelize";
 import { NotFoundError } from "../../utils/customErrors.js";
 
 class AdminProductOptionService {
@@ -19,26 +21,40 @@ class AdminProductOptionService {
     return option;
   }
 
-  public async getAll({
-    page = 1,
-    pageSize = 20,
-  }: IPagination = {}) {
+  public async getAll({ page = 1, pageSize = 20, search }: IPagination = {}) {
     const offset = (page - 1) * pageSize;
 
     logger.debug(
-      { page, pageSize, offset },
-      "AdminProductOptionService.getAll called"
+      { page, pageSize, offset, search },
+      "AdminProductOptionService.getAll called",
     );
 
-    const { rows: options, count: total } = await ProductOptionModel.findAndCountAll({
-      limit: pageSize,
-      offset,
-      order: [["id", "ASC"]],
-    });
+    const where: any = {};
+    if (search) {
+      where[Op.or] = [
+        { name: { [Op.like]: `%${search}%` } },
+        { label: { [Op.like]: `%${search}%` } },
+      ];
+    }
+
+    const { rows: options, count: total } =
+      await ProductOptionModel.findAndCountAll({
+        where,
+        limit: pageSize,
+        offset,
+        order: [["id", "ASC"]],
+        include: [
+          {
+            model: ProductModel,
+            as: "product",
+            attributes: ["id", "name"],
+          },
+        ],
+      });
 
     logger.debug(
       { page, pageSize, returned: options.length, total },
-      "AdminProductOptionService.getAll completed"
+      "AdminProductOptionService.getAll completed",
     );
 
     return {
@@ -56,10 +72,13 @@ class AdminProductOptionService {
   public async create(data: {
     productId: number;
     name: string;
-    type?:  "multiple" | "dropdown" | "text";
+    type?: "multiple" | "dropdown" | "text";
     label?: string | null;
   }) {
-    logger.debug({ name: data.name }, "AdminProductOptionService.create called");
+    logger.debug(
+      { name: data.name },
+      "AdminProductOptionService.create called",
+    );
 
     const option = await ProductOptionModel.create({
       productId: data.productId,
@@ -68,7 +87,10 @@ class AdminProductOptionService {
       label: data.label ?? null,
     });
 
-    logger.debug({ id: option.id }, "AdminProductOptionService.create completed");
+    logger.debug(
+      { id: option.id },
+      "AdminProductOptionService.create completed",
+    );
     return option;
   }
 
@@ -77,9 +99,9 @@ class AdminProductOptionService {
     id: number,
     data: Partial<{
       name: string;
-      type:  "multiple" | "dropdown" | "text";
+      type: "multiple" | "dropdown" | "text";
       label: string | null;
-    }>
+    }>,
   ) {
     logger.debug({ id, data }, "AdminProductOptionService.update called");
 

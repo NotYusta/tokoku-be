@@ -24,6 +24,7 @@ const updateProductSchema = Joi.object({
 const paginationSchema = Joi.object({
   page: Joi.number().integer().min(1).default(1),
   page_size: Joi.number().integer().min(1).default(20),
+  search: Joi.string().optional().allow(""),
 });
 
 const AdminProductController = {
@@ -46,11 +47,13 @@ const AdminProductController = {
       res,
       async () => {
         const { error, value } = paginationSchema.validate(req.query);
-        if (error) throw new ValidationError(error.details.map((d) => d.message));
+        if (error)
+          throw new ValidationError(error.details.map((d) => d.message));
 
         return await adminProductService.getAll({
           page: value.page,
           pageSize: value.page_size,
+          search: value.search,
         });
       },
       { parseUnhandled: true },
@@ -62,7 +65,8 @@ const AdminProductController = {
       res,
       async () => {
         const { error, value } = createProductSchema.validate(req.body);
-        if (error) throw new ValidationError(error.details.map((d) => d.message));
+        if (error)
+          throw new ValidationError(error.details.map((d) => d.message));
 
         return await adminProductService.create(value);
       },
@@ -78,7 +82,8 @@ const AdminProductController = {
         if (isNaN(id)) throw new NotFoundError();
 
         const { error, value } = updateProductSchema.validate(req.body);
-        if (error) throw new ValidationError(error.details.map((d) => d.message));
+        if (error)
+          throw new ValidationError(error.details.map((d) => d.message));
 
         return await adminProductService.update(id, value);
       },
