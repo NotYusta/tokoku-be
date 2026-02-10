@@ -11,7 +11,7 @@
     "migrate:up": "npx sequelize-cli db:migrate",
     "migrate:down": "npx sequelize-cli db:migrate:undo:all",
     "migrate:rollback": "npx sequelize-cli db:migrate:undo",
-    "app:user": "tsx src/cli/user.ts",
+    "app:user": "tsx src/cli/user.ts",  
     "app:generate": "tsx src/cli/generate.ts"
   },
   "keywords": [],
@@ -47,5 +47,4 @@
     "sequelize": "^6.37.7"
   },
   "type": "module"
-  
 }

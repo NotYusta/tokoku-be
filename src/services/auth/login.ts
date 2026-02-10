@@ -3,6 +3,7 @@ import UserModel from "../../models/user.js";
 import authManager from "../../managers/auth.js";
 import type { ClientContext } from "../../00_types/contexts/client.js";
 import { AuthError } from "../../utils/customErrors.js";
+import logger from "../../logger.js";
 
 interface LoginPayload {
   clientContext: ClientContext;
@@ -30,6 +31,7 @@ class LoginAuthService {
       throw new AuthError("Invalid email or password");
     }
 
+    logger.debug({id: user.id, name: user.name, email: user.email, isAdmin: user.isAdmin}, "User found")
     // Generate JWT token
     const result = authManager.generateToken({
       userId: user.id,

@@ -2,9 +2,10 @@ export interface IConfig {
   readonly production: boolean;
   readonly app: {
     readonly allowedOrigins: string[];
-    readonly url: string;
+    readonly url: string; 
     readonly port: number;
     readonly bind: string;
+    readonly trustedProxies: string[];
     readonly keys: {
       readonly jwtSecret: string;
       readonly encryptionKey: string;

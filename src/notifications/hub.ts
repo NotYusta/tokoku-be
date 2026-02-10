@@ -1,6 +1,9 @@
 // src/notifications/NotifierHub.ts
 import type { Notifier } from "../00_types/notifications.js";
 import logger from "../logger.js";
+import WebhookModel from "../models/webhook.js";
+import CustomWebhookNotifier from "./webhook/custom.js";
+import DiscordWebhookNotifier from "./webhook/discord.js";
 
 /**
  * Centralized notification hub
@@ -48,6 +51,37 @@ class NotifierHub<T = any> {
         await notifier.notify(transformed);
       } catch (err) {
         logger.error({ err }, "Notifier failed");
+      }
+    }
+
+    await this.notifyWebhooks(payload);
+  }
+
+  private async notifyWebhooks(payload: T) {
+    // fetch webhook models by 25 with pagination 
+    const webhooksTotal = await WebhookModel.count();
+    const webhookPagesTotal = Math.ceil(webhooksTotal / 25);
+    for (let i = 0; i < webhookPagesTotal; i++) {
+      const webhooks = await WebhookModel.findAll({
+        limit: 25,
+        offset: i * 25,
+      });
+
+      for (const webhook of webhooks) {
+        let webhookNotifier: Notifier<T> | undefined = undefined;
+        if (webhook.url.includes("discord.com")) {
+          webhookNotifier = new DiscordWebhookNotifier(webhook.url);
+        } else {
+          webhookNotifier = new CustomWebhookNotifier(webhook.url);
+        }
+
+        logger.debug({ url: webhook.url, label: webhook.label }, "Calling webhooks from database")
+        try {
+          const transformed = webhookNotifier.transform(payload);
+          await webhookNotifier.notify(transformed);
+        } catch (err) {
+          logger.error({ err }, "Webhook failed");
+        }
       }
     }
   }

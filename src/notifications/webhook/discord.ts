@@ -11,8 +11,8 @@ export type DiscordPayload = {
  * Discord webhook notifier
  * Automatically transforms any payload into a JSON with `title` and `content`
  */
-class DiscordNotifier implements Notifier<any> {
-  constructor(private readonly webhookUrl: string) {}
+class DiscordWebhookNotifier implements Notifier<any> {
+  constructor(private readonly webhookUrl: string) { }
 
   /**
    * Transform any payload into Discord message format
@@ -52,4 +52,4 @@ class DiscordNotifier implements Notifier<any> {
   }
 }
 
-export default DiscordNotifier;
+export default DiscordWebhookNotifier;

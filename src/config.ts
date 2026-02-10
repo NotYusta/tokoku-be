@@ -40,26 +40,33 @@ function loadConfig(): IConfig {
     // ===== Notifications =====
     const discordWebhookUrls = process.env.DISCORD_WEBHOOK_URLS
       ? process.env.DISCORD_WEBHOOK_URLS.split(",")
-          .map((u) => u.trim())
-          .filter(Boolean)
+        .map((u) => u.trim())
+        .filter(Boolean)
       : [];
 
     const customUrls = process.env.CUSTOM_WEBHOOK_URLS
       ? process.env.CUSTOM_WEBHOOK_URLS.split(",")
-          .map((u) => u.trim())
-          .filter(Boolean)
+        .map((u) => u.trim())
+        .filter(Boolean)
       : [];
     const allowedOrigins = process.env.APP_ALLOWED_ORIGINS
       ? process.env.APP_ALLOWED_ORIGINS.split(",")
-          .map((u) => u.trim())
-          .filter(Boolean)
+        .map((u) => u.trim())
+        .filter(Boolean)
       : [];
+
+    const trustedProxies = process.env.APP_TRUSTED_PROXIES
+      ? process.env.APP_TRUSTED_PROXIES.split(",")
+        .map((u) => u.trim())
+        .filter(Boolean)
+      : ["*"];
 
     return {
       production,
 
       app: {
         allowedOrigins,
+        trustedProxies,
         url: appUrl,
         port,
         bind,

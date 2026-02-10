@@ -1,7 +1,7 @@
 import config from "../config.js";
 import notifierHub from "./hub.js";
 import CustomWebhookNotifier from "./webhook/custom.js";
-import DiscordNotifier from "./webhook/discord.js";
+import DiscordWebhookNotifier from "./webhook/discord.js";
 
 export async function registerNotifications() {
   /**
@@ -9,7 +9,7 @@ export async function registerNotifications() {
    */
   if (config.notifications.webhooks.discord.length > 0) {
     for (const v of config.notifications.webhooks.discord) {
-      notifierHub.register(new DiscordNotifier(v));
+      notifierHub.register(new DiscordWebhookNotifier(v));
     }
   }
 

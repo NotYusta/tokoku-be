@@ -2,6 +2,7 @@ import SendNotifyJob from "../jobs/SendNotify.js";
 import logger from "../logger.js";
 import orderPaymentCompleteService from "../services/orders/complete.js";
 import orderCompletedEvent from "./orders/complete.js";
+import orderCreatedEvent from "./orders/create.js";
 import transactionFailedEvent from "./transactions/fail.js";
 import transactionPaidEvent from "./transactions/paid.js";
 
@@ -11,6 +12,7 @@ export async function registerEvents() {
   // Centralized notification for all events
   const eventsWithNotifier = [
     orderCompletedEvent,
+    orderCreatedEvent,
     transactionPaidEvent,
     transactionFailedEvent,
   ];

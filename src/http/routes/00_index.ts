@@ -16,6 +16,7 @@ import frontendRoutes from "./frontend.js";
 import productRoutes from "./product.js";
 
 export const registerRoutes = (app: Express) => {
+  app.set("trust proxy", config.app.trustedProxies.includes("*") ? true : config.app.trustedProxies)
   registerMiddlewares(app);
 
   authRoutes(app);

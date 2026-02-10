@@ -1,0 +1,9 @@
+### Create Webhook
+POST http://localhost:3000/api/admin/webhooks
+Cookie: auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIsInVhZG1pbiI6dHJ1ZSwidW5hbWUiOiJ4YWJoaXN0YTE5IiwidWFnIjoidnNjb2RlLXJlc3RjbGllbnQiLCJpYXQiOjE3NzA2OTQxNzgsImV4cCI6MTc3MDc4MDU3OH0.eZN8o19s50dw5hvenC2l0cDowWdk94JSYfZ2eQsZVbc
+Content-Type: application/json
+
+{
+  "label": "test",
+  "url": "https://raznar.id"
+}

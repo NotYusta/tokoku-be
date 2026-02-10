@@ -6,6 +6,7 @@ import adminUserRoutes from "./user.js";
 import adminOrderRoutes from "./order.js";
 import adminTransactionRoutes from "./transaction.js";
 import corsMiddleware from "../../middlewares/cors.js";
+import adminWebhookRoutes from "./webhook.js";
 
 const adminRoutes = (app: Express) => {
   const adminGroup = Router();
@@ -21,6 +22,7 @@ const adminRoutes = (app: Express) => {
   adminProductRoutes(adminGroup);
   adminOrderRoutes(adminGroup);
   adminTransactionRoutes(adminGroup);
+  adminWebhookRoutes(adminGroup);
 };
 
 export default adminRoutes;

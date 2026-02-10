@@ -15,6 +15,7 @@ import xenditPaymentService from "../payment/xendit.js";
 import config from "../../config.js";
 import { sequelize } from "../../database.js";
 import type { ICreateOrderProductPayload } from "../../00_types/domains/orders/createOrderProduct.js";
+import orderCreatedEvent from "../../events/orders/create.js";
 
 class CreateOrderProductService {
   public async handle(payload: ICreateOrderProductPayload) {
@@ -211,8 +212,7 @@ class CreateOrderProductService {
 
       logger.debug({ orderId: order.id, totalPrice }, "Order created");
 
-      const redirectUrl = path.join(config.app.url, "/orders", `${order.id}`);
-
+      const redirectUrl = `${config.app.url}/orders/${order.id}`;
       const invoice = await xenditPaymentService.createInvoice({
         userId,
         description: `Order #${order.id} - ${order.name}`,
@@ -235,6 +235,8 @@ class CreateOrderProductService {
         },
         "Order + Xendit invoice created successfully",
       );
+
+      orderCreatedEvent.emit(order);
 
       return {
         order,
